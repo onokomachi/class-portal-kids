@@ -1,18 +1,21 @@
 /**
- * 「じぶんの分析」で使う数字を作る。
+ * 「じぶんの きろく」で使う数字を作る。
  *
- * 見せ方の方針は Hub.tsx と同じで、**正答率も順位も出さない**。
- * ここで作るのは3つだけ:
- *   - がんばった記録 … やった日・続いた日数（自分の中の事実。他人と比べない）
+ * 出すのは4つ:
+ *   - がんばった記録 … やった日・続いた日数（自分の中の事実）
  *   - できるようになったこと … 5回連続ノーミスまで行ったレベルの数
  *   - つぎに やるといいところ … 順位づけではなく、行き先の提案
+ *   - 先週とくらべて … 問題単位の正答率の変化
  *
+ * **比べる相手は過去の自分だけにする。** 順位も学級平均も出さない。
  * Kluger & DeNisi (1996) の607件のメタ分析では、フィードバックの約3分の1が
  * 負の効果で、分かれ目は注意が「課題」に向くか「自分の出来不出来」に向くかだった。
- * 「何％できたか」は後者に向かわせるので、数えるのは「やったこと」にする。
+ * 他人と比べた数字は後者に向かわせる。自分の過去と比べた数字なら、
+ * 「先週より伸びた／落ちた、では次どうするか」という課題の話になる。
+ * （自己調整学習でいう「自己観察」を成り立たせるために、数値そのものは必要）
  */
 import { useCallback, useEffect, useState } from 'react';
-import { fetchMyActivity, streakDays, type MyActivityRow, type MySkillRow } from 'learning-app-kit/sync';
+import { fetchMyActivity, streakDays, totalsBetween, type MyActivityRow, type MySkillRow } from 'learning-app-kit/sync';
 import { lookupSkill, CATALOGS, type AppCatalog } from 'learning-app-kit/catalog';
 import { portalConfig } from './portal';
 
@@ -130,4 +133,46 @@ export function toNextSteps(rows: readonly MySkillRow[], limit = 3): NextStep[] 
     if (out.length >= limit) break;
   }
   return out;
+}
+
+/** 何日前の日付か（日本時間・'YYYY-MM-DD'） */
+function daysAgo(n: number, today = todayJst()): string {
+  const d = new Date(`${today}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+export interface SelfCompare {
+  /** この7日の問題単位の正答率。まだ記録が無ければ null */
+  thisWeek: number | null;
+  /** その前の7日。比べる相手は「先週の自分」だけ */
+  lastWeek: number | null;
+  /** 伸び（この7日 − 前の7日）。どちらかが無ければ null */
+  diff: number | null;
+  /** この7日にのべ何回答えたか。少ないときに正答率を出さない判断に使う */
+  answers: number;
+}
+
+/**
+ * 「先週の自分」とくらべる。
+ *
+ * 他人とは比べない。順位も学級平均も出さない——比べる相手が他人になった
+ * 時点で、注意は課題から「自分の出来不出来」に移る（Kluger & DeNisi 1996）。
+ *
+ * のべ解答数が少ないうちは正答率を出さない。3問やって1問できた「33%」は
+ * 実力ではなく偶然で、数字だけが独り歩きするため。
+ */
+const MIN_ANSWERS = 10;
+
+export function toSelfCompare(rows: readonly MyActivityRow[], today = todayJst()): SelfCompare {
+  const now = totalsBetween(rows, daysAgo(6, today), today);
+  const prev = totalsBetween(rows, daysAgo(13, today), daysAgo(7, today));
+  const thisWeek = now.answers >= MIN_ANSWERS ? now.rate : null;
+  const lastWeek = prev.answers >= MIN_ANSWERS ? prev.rate : null;
+  return {
+    thisWeek,
+    lastWeek,
+    diff: thisWeek !== null && lastWeek !== null ? thisWeek - lastWeek : null,
+    answers: now.answers,
+  };
 }

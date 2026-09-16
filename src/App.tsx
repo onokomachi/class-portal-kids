@@ -11,7 +11,7 @@ import { getStudent, type StudentIdentity } from 'learning-app-kit/sync';
 import { listGrades } from 'learning-app-kit/catalog';
 import { isConfigured } from './lib/portal';
 import { useProgress, toDueItems, toUnitProgress } from './lib/useProgress';
-import { useActivity, toEffort, toStrengths, toNextSteps } from './lib/useMine';
+import { useActivity, toEffort, toStrengths, toNextSteps, toSelfCompare } from './lib/useMine';
 import { Join } from './components/Join';
 import { Hub } from './components/Hub';
 import { Mine } from './components/Mine';
@@ -42,6 +42,7 @@ export default function App() {
   const effort = useMemo(() => toEffort(activity.rows), [activity.rows]);
   const strengths = useMemo(() => toStrengths(rows ?? []), [rows]);
   const next = useMemo(() => toNextSteps(rows ?? []), [rows]);
+  const compare = useMemo(() => toSelfCompare(activity.rows), [activity.rows]);
 
   useEffect(() => {
     try { localStorage.setItem(GRADE_KEY, String(grade)); } catch { /* 保存できなくても動く */ }
@@ -89,7 +90,7 @@ export default function App() {
         onJoin={() => setShowJoin(true)}
         tab={tab}
         onTab={setTab}
-        mine={<Mine student={student} effort={effort} strengths={strengths} next={next} />}
+        mine={<Mine student={student} effort={effort} strengths={strengths} next={next} compare={compare} />}
       />
     </>
   );

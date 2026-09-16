@@ -1,16 +1,22 @@
 /**
  * 「じぶんの きろく」の画面。
  *
- * 出さないもの: 正答率、順位、他の子との比較、できていない数。
- * 出すもの: やった日、続いた日数、できるようになったこと、つぎに やるといいところ。
+ * 出すもの: やった日、続いた日数、できるようになったこと、
+ *           つぎに やるといいところ、**先週の自分とくらべた正答率**。
+ * 出さないもの: 順位、学級の平均、他の子との比較、できていない数。
  *
- * 「％」を出すと、子どもの注意が課題から「自分の出来不出来」に移る
- * （Kluger & DeNisi 1996 / master-DB: decisions/kids-no-individual-ranking）。
- * だから同じデータでも、数えるのは「やったこと」と「できるようになったこと」にする。
+ * 数字を出すかどうかではなく、**誰と比べる数字か**で分ける。
+ * Kluger & DeNisi (1996) が負の効果として挙げたのは、注意が課題から
+ * 「自分の出来不出来」に移るフィードバックだった。他人と並べた数字はそこへ向かう。
+ * 過去の自分と並べた数字なら「先週より伸びた／落ちた、では次どうするか」
+ * という課題の話になり、自己調整学習でいう「自己観察」として働く。
+ *
+ * まだ問題数が少ないうちは正答率を出さない。3問やって1問できた「33%」は
+ * 実力ではなく偶然で、数字だけが独り歩きするため。
  */
-import { Flame, CalendarDays, Sparkles, ChevronRight } from 'lucide-react';
+import { Flame, CalendarDays, Sparkles, ChevronRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
-import type { Effort, StrongUnit, NextStep } from '../lib/useMine';
+import type { Effort, StrongUnit, NextStep, SelfCompare } from '../lib/useMine';
 
 const SUBJECT_STYLE: Record<string, string> = {
   算数: 'bg-sky-100 text-sky-700 border-sky-200',
@@ -27,9 +33,10 @@ interface Props {
   effort: Effort;
   strengths: StrongUnit[];
   next: NextStep[];
+  compare: SelfCompare;
 }
 
-export function Mine({ student, effort, strengths, next }: Props) {
+export function Mine({ student, effort, strengths, next, compare }: Props) {
   const totalMastered = strengths.reduce((s, u) => s + u.mastered, 0);
   const nothingYet = effort.totalDays === 0 && totalMastered === 0;
 
@@ -83,6 +90,9 @@ export function Mine({ student, effort, strengths, next }: Props) {
         </div>
       </section>
 
+      {/* 先週の自分とくらべる。比べる相手は他人ではなく、過去の自分だけ */}
+      <SelfCompareCard compare={compare} />
+
       {/* できるようになったこと。「できていない数」は出さない */}
       {totalMastered > 0 && (
         <section className="rounded-2xl bg-white border border-slate-200 p-5">
@@ -132,6 +142,70 @@ export function Mine({ student, effort, strengths, next }: Props) {
         </section>
       )}
     </div>
+  );
+}
+
+/**
+ * 先週とくらべて。
+ *
+ * 数字を出すのは「過去の自分」との比較だけにする。学級の平均も順位も出さない。
+ * まだ問題数が少ないうちは正答率を出さない——3問やって1問できた「33%」は
+ * 実力ではなく偶然で、数字だけが独り歩きするため。
+ */
+function SelfCompareCard({ compare }: { compare: SelfCompare }) {
+  const pct = (v: number) => `${Math.round(v * 100)}%`;
+
+  if (compare.thisWeek === null) {
+    return (
+      <section className="rounded-2xl bg-white border border-slate-200 p-5">
+        <h2 className="flex items-center gap-1.5 font-black text-slate-800 mb-1">
+          <TrendingUp size={18} className="text-sky-500" /> 先週と くらべて
+        </h2>
+        <p className="text-sm text-slate-500">
+          もう すこし やると、じぶんの のびが 出せるよ
+        </p>
+      </section>
+    );
+  }
+
+  const d = compare.diff;
+  const up = d !== null && d > 0.02;
+  const down = d !== null && d < -0.02;
+  const Icon = up ? TrendingUp : down ? TrendingDown : Minus;
+  const tone = up ? 'text-emerald-600' : down ? 'text-slate-500' : 'text-slate-500';
+
+  return (
+    <section className="rounded-2xl bg-white border border-slate-200 p-5">
+      <h2 className="flex items-center gap-1.5 font-black text-slate-800 mb-3">
+        <TrendingUp size={18} className="text-sky-500" /> 先週と くらべて
+      </h2>
+
+      <div className="flex items-end justify-center gap-5">
+        <div className="text-center">
+          <p className="text-[11px] text-slate-400 mb-0.5">先週</p>
+          <p className="font-bold text-2xl tabular-nums text-slate-400">
+            {compare.lastWeek === null ? '—' : pct(compare.lastWeek)}
+          </p>
+        </div>
+        <ChevronRight size={20} className="text-slate-300 mb-2" />
+        <div className="text-center">
+          <p className="text-[11px] text-slate-500 mb-0.5">この7日</p>
+          <p className="font-black text-4xl tabular-nums text-sky-600">{pct(compare.thisWeek)}</p>
+        </div>
+      </div>
+
+      <p className={`mt-3 text-center text-sm font-bold ${tone} flex items-center justify-center gap-1`}>
+        <Icon size={16} />
+        {d === null ? 'はじめての きろくだよ'
+          : up ? `${Math.round(d * 100)}ポイント のびたよ！`
+          : down ? 'こんかいは すこし さがったよ。つぎに いこう'
+          : 'おなじくらいを たもてているよ'}
+      </p>
+
+      <p className="mt-3 text-xs text-slate-400 leading-relaxed">
+        くらべているのは 先週の じぶん だけだよ。ほかの人とは くらべないよ。
+      </p>
+    </section>
   );
 }
 
