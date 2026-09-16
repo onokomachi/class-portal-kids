@@ -7,7 +7,7 @@
  * だから数字で優劣を示さず、「つぎに やること」を前に出す。
  * （master-DB: decisions/kids-no-individual-ranking と同じ方針）
  */
-import { RotateCcw, ChevronRight, Sparkles, RefreshCw } from 'lucide-react';
+import { RotateCcw, ChevronRight, Sparkles, RefreshCw, Home, LineChart } from 'lucide-react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import type { DueItem, UnitProgress } from '../lib/useProgress';
 
@@ -29,9 +29,13 @@ interface Props {
   loading: boolean;
   onReload: () => void;
   onJoin: () => void;
+  tab: 'home' | 'mine';
+  onTab: (t: 'home' | 'mine') => void;
+  /** 「じぶんの きろく」タブの中身。ここでは中身を知らずに置くだけにする */
+  mine: React.ReactNode;
 }
 
-export function Hub({ student, due, units, loading, onReload, onJoin }: Props) {
+export function Hub({ student, due, units, loading, onReload, onJoin, tab, onTab, mine }: Props) {
   const totalMastered = units.reduce((s, u) => s + u.mastered, 0);
 
   return (
@@ -51,6 +55,20 @@ export function Hub({ student, due, units, loading, onReload, onJoin }: Props) {
         </div>
       </header>
 
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-2xl mx-auto px-5 flex gap-1">
+          <TabButton active={tab === 'home'} onClick={() => onTab('home')} icon={<Home size={15} />}>
+            ホーム
+          </TabButton>
+          <TabButton active={tab === 'mine'} onClick={() => onTab('mine')} icon={<LineChart size={15} />}>
+            じぶんの きろく
+          </TabButton>
+        </div>
+      </div>
+
+      {tab === 'mine' ? (
+        <main className="max-w-2xl mx-auto px-5 py-6">{mine}</main>
+      ) : (
       <main className="max-w-2xl mx-auto px-5 py-6 space-y-6">
         {!student && (
           <button onClick={onJoin}
@@ -138,6 +156,21 @@ export function Hub({ student, due, units, loading, onReload, onJoin }: Props) {
           きろくは じぶんの たんまつと、せんせいの がめんに とどくよ。なまえは つかわないよ。
         </p>
       </main>
+      )}
     </div>
+  );
+}
+
+function TabButton({ active, onClick, icon, children }: {
+  active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode;
+}) {
+  return (
+    <button onClick={onClick}
+      className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm border-b-2 -mb-px transition
+                  ${active
+                    ? 'border-sky-500 text-sky-700 font-bold'
+                    : 'border-transparent text-slate-500'}`}>
+      {icon}{children}
+    </button>
   );
 }
