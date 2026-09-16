@@ -15,7 +15,10 @@
  * （自己調整学習でいう「自己観察」を成り立たせるために、数値そのものは必要）
  */
 import { useCallback, useEffect, useState } from 'react';
-import { fetchMyActivity, streakDays, totalsBetween, type MyActivityRow, type MySkillRow } from 'learning-app-kit/sync';
+import {
+  fetchMyActivity, streakDays, totalsBetween, fetchMySkillTotals, weeklyTrend,
+  type MyActivityRow, type MySkillRow, type MySkillTotalRow, type WeekPoint,
+} from 'learning-app-kit/sync';
 import { lookupSkill, CATALOGS, type AppCatalog } from 'learning-app-kit/catalog';
 import { portalConfig } from './portal';
 
@@ -135,6 +138,11 @@ export function toNextSteps(rows: readonly MySkillRow[], limit = 3): NextStep[] 
   return out;
 }
 
+/** 週ごとの推移。グラフに渡す形をそのまま作る。 */
+export function toTrend(rows: readonly MyActivityRow[], weeks = 8, today = todayJst()): WeekPoint[] {
+  return weeklyTrend(rows, weeks, today);
+}
+
 /** 何日前の日付か（日本時間・'YYYY-MM-DD'） */
 function daysAgo(n: number, today = todayJst()): string {
   const d = new Date(`${today}T00:00:00Z`);
@@ -175,4 +183,98 @@ export function toSelfCompare(rows: readonly MyActivityRow[], today = todayJst()
     diff: thisWeek !== null && lastWeek !== null ? thisWeek - lastWeek : null,
     answers: now.answers,
   };
+}
+
+/* ---------- のびの推移と、項目ごとのできぐあい ---------- */
+
+export function useSkillTotals(studentId: string | null) {
+  const [rows, setRows] = useState<MySkillTotalRow[]>([]);
+  const load = useCallback(async () => {
+    if (!studentId) { setRows([]); return; }
+    const r = await fetchMySkillTotals(portalConfig, studentId);
+    setRows(r.ok ? r.rows : []);
+  }, [studentId]);
+  useEffect(() => { void load(); }, [load]);
+  return { rows, reload: load };
+}
+
+/** 単元ごとのできぐあい。項目（スキル）の記録を単元でまとめたもの。 */
+export interface UnitAbility {
+  app: AppCatalog;
+  answers: number;
+  corrects: number;
+  /** 問題単位の正答率。のべ解答数が足りなければ null */
+  rate: number | null;
+  /** 記録のある項目の数 */
+  skills: number;
+}
+
+/** 項目ひとつぶん。単元の中でどこが手ごわいかを見るのに使う。 */
+export interface SkillAbility {
+  appId: string;
+  appTitle: string;
+  subject: string;
+  appUrl?: string;
+  label: string;
+  moduleTitle: string;
+  answers: number;
+  rate: number;
+}
+
+/** 正答率を出すのに必要な、のべ解答数の下限（これ未満は偶然の幅が大きすぎる） */
+const MIN_FOR_RATE = 10;
+
+export function toUnitAbility(rows: readonly MySkillTotalRow[], grade: number): UnitAbility[] {
+  const byApp = new Map<string, { answers: number; corrects: number; skills: number }>();
+  for (const r of rows) {
+    const cur = byApp.get(r.app_id) ?? { answers: 0, corrects: 0, skills: 0 };
+    cur.answers += Number(r.answers) || 0;
+    cur.corrects += Number(r.corrects) || 0;
+    cur.skills += 1;
+    byApp.set(r.app_id, cur);
+  }
+  const out: UnitAbility[] = [];
+  for (const [appId, v] of byApp) {
+    const app = CATALOGS[appId];
+    if (!app || app.grade !== grade) continue;
+    out.push({
+      app, answers: v.answers, corrects: v.corrects, skills: v.skills,
+      rate: v.answers >= MIN_FOR_RATE ? v.corrects / v.answers : null,
+    });
+  }
+  // できている順。単元どうしの比較であって、他人との比較ではない
+  return out.sort((a, b) => (b.rate ?? -1) - (a.rate ?? -1));
+}
+
+/**
+ * 手ごわい項目。正答率の低い順に出す。
+ *
+ * 「つぎに やるといいところ」（まだ途中のもの）とは役割が違う。
+ * こちらは**何度もやっているのに正答率が上がらない**ところで、
+ * 先生が見れば指導の手がかりになり、子どもにとっては
+ * 「ここを ねらってやると効く」という的になる。
+ */
+/**
+ * ここを下回っていたら「まだ手ごわい」とみなす。
+ * これが無いと、よくできている項目まで一覧に並び、見出しが嘘になる
+ * （実際、検証で85%の項目が「ねらうところ」に出た）。
+ */
+const HARD_BELOW = 0.75;
+
+export function toHardSkills(rows: readonly MySkillTotalRow[], limit = 5): SkillAbility[] {
+  const out: SkillAbility[] = [];
+  for (const r of rows) {
+    const answers = Number(r.answers) || 0;
+    if (answers < MIN_FOR_RATE) continue;      // 回数が少ないものは判断しない
+    if ((Number(r.corrects) || 0) / answers >= HARD_BELOW) continue;   // できている項目は並べない
+    const c = lookupSkill(r.app_id, r.skill_id);
+    const app = CATALOGS[r.app_id];
+    if (!c || !app) continue;
+    out.push({
+      appId: r.app_id, appTitle: app.title, subject: app.subject, appUrl: app.url,
+      label: c.label, moduleTitle: c.module_title,
+      answers, rate: (Number(r.corrects) || 0) / answers,
+    });
+  }
+  return out.sort((a, b) => a.rate - b.rate).slice(0, limit);
 }

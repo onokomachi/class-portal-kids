@@ -16,7 +16,9 @@
  */
 import { Flame, CalendarDays, Sparkles, ChevronRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
-import type { Effort, StrongUnit, NextStep, SelfCompare } from '../lib/useMine';
+import { Trend } from './Trend';
+import type { Effort, StrongUnit, NextStep, SelfCompare, UnitAbility, SkillAbility } from '../lib/useMine';
+import type { WeekPoint } from 'learning-app-kit/sync';
 
 const SUBJECT_STYLE: Record<string, string> = {
   算数: 'bg-sky-100 text-sky-700 border-sky-200',
@@ -34,9 +36,12 @@ interface Props {
   strengths: StrongUnit[];
   next: NextStep[];
   compare: SelfCompare;
+  trend: WeekPoint[];
+  units: UnitAbility[];
+  hard: SkillAbility[];
 }
 
-export function Mine({ student, effort, strengths, next, compare }: Props) {
+export function Mine({ student, effort, strengths, next, compare, trend, units, hard }: Props) {
   const totalMastered = strengths.reduce((s, u) => s + u.mastered, 0);
   const nothingYet = effort.totalDays === 0 && totalMastered === 0;
 
@@ -92,6 +97,9 @@ export function Mine({ student, effort, strengths, next, compare }: Props) {
 
       {/* 先週の自分とくらべる。比べる相手は他人ではなく、過去の自分だけ */}
       <SelfCompareCard compare={compare} />
+
+      {/* その推移と、項目ごとのできぐあい */}
+      <Trend student={student} trend={trend} units={units} hard={hard} />
 
       {/* できるようになったこと。「できていない数」は出さない */}
       {totalMastered > 0 && (
