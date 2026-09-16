@@ -11,8 +11,10 @@ import { getStudent, type StudentIdentity } from 'learning-app-kit/sync';
 import { listGrades } from 'learning-app-kit/catalog';
 import { isConfigured } from './lib/portal';
 import { useProgress, toDueItems, toUnitProgress } from './lib/useProgress';
+import { useActivity, toEffort, toStrengths, toNextSteps } from './lib/useMine';
 import { Join } from './components/Join';
 import { Hub } from './components/Hub';
+import { Mine } from './components/Mine';
 
 /** 学年は端末に覚えさせる。1人1台なので毎回選ばせない。 */
 const GRADE_KEY = 'kids_grade_v1';
@@ -32,9 +34,14 @@ export default function App() {
   const grades = useMemo(() => listGrades(), []);
   const [grade, setGrade] = useState(() => savedGrade(grades[0] ?? 4));
 
+  const [tab, setTab] = useState<'home' | 'mine'>('home');
   const { rows, loading, reload } = useProgress(student?.studentId ?? null);
+  const activity = useActivity(student?.studentId ?? null);
   const due = useMemo(() => toDueItems(rows ?? []), [rows]);
   const units = useMemo(() => toUnitProgress(rows ?? [], grade), [rows, grade]);
+  const effort = useMemo(() => toEffort(activity.rows), [activity.rows]);
+  const strengths = useMemo(() => toStrengths(rows ?? []), [rows]);
+  const next = useMemo(() => toNextSteps(rows ?? []), [rows]);
 
   useEffect(() => {
     try { localStorage.setItem(GRADE_KEY, String(grade)); } catch { /* 保存できなくても動く */ }
@@ -77,9 +84,12 @@ export default function App() {
         student={student}
         due={due}
         units={units}
-        loading={loading}
-        onReload={() => void reload()}
+        loading={loading || activity.loading}
+        onReload={() => { void reload(); void activity.reload(); }}
         onJoin={() => setShowJoin(true)}
+        tab={tab}
+        onTab={setTab}
+        mine={<Mine student={student} effort={effort} strengths={strengths} next={next} />}
       />
     </>
   );
