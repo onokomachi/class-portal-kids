@@ -11,7 +11,10 @@ import { getStudent, type StudentIdentity } from 'learning-app-kit/sync';
 import { listGrades } from 'learning-app-kit/catalog';
 import { isConfigured } from './lib/portal';
 import { useProgress, toDueItems, toUnitProgress } from './lib/useProgress';
-import { useActivity, toEffort, toStrengths, toNextSteps, toSelfCompare } from './lib/useMine';
+import {
+  useActivity, useSkillTotals, toEffort, toStrengths, toNextSteps, toSelfCompare,
+  toTrend, toUnitAbility, toHardSkills,
+} from './lib/useMine';
 import { Join } from './components/Join';
 import { Hub } from './components/Hub';
 import { Mine } from './components/Mine';
@@ -43,6 +46,10 @@ export default function App() {
   const strengths = useMemo(() => toStrengths(rows ?? []), [rows]);
   const next = useMemo(() => toNextSteps(rows ?? []), [rows]);
   const compare = useMemo(() => toSelfCompare(activity.rows), [activity.rows]);
+  const totals = useSkillTotals(student?.studentId ?? null);
+  const trend = useMemo(() => toTrend(activity.rows), [activity.rows]);
+  const ability = useMemo(() => toUnitAbility(totals.rows, grade), [totals.rows, grade]);
+  const hard = useMemo(() => toHardSkills(totals.rows), [totals.rows]);
 
   useEffect(() => {
     try { localStorage.setItem(GRADE_KEY, String(grade)); } catch { /* 保存できなくても動く */ }
@@ -86,11 +93,14 @@ export default function App() {
         due={due}
         units={units}
         loading={loading || activity.loading}
-        onReload={() => { void reload(); void activity.reload(); }}
+        onReload={() => { void reload(); void activity.reload(); void totals.reload(); }}
         onJoin={() => setShowJoin(true)}
         tab={tab}
         onTab={setTab}
-        mine={<Mine student={student} effort={effort} strengths={strengths} next={next} compare={compare} />}
+        mine={
+          <Mine student={student} effort={effort} strengths={strengths} next={next}
+            compare={compare} trend={trend} units={ability} hard={hard} />
+        }
       />
     </>
   );
