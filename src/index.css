@@ -1,8 +1,56 @@
 @import "tailwindcss";
 
+/**
+ * 子ども用ハブの配色。
+ *
+ * 明るいままにしてある。1人1台の端末で、教室の明るさのもとで小4が読む画面なので、
+ * 暗い配色は文字が細って見えづらい（先生用は職員室で数字を読むための別の道具）。
+ *
+ * 色の役目を固定する:
+ *   そら色  … いまやること・すすむ先
+ *   みどり  … つづけたこと（努力）
+ *   きいろ  … できるようになったこと
+ *   だいだい… ねらうと効くところ（「にがて」とは書かない）
+ */
+@theme {
+  --color-sky1: #0ea5e9;
+  --color-sky2: #38bdf8;
+  --color-grass: #10b981;
+  --color-sun: #f59e0b;
+  --color-flame: #fb7185;
+  --color-ink: #0f2540;
+  --color-mute: #64748b;
+}
+
 :root { color-scheme: light; }
+
 body {
   margin: 0;
-  background: #eef4fb;
+  color: var(--color-ink);
   font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  background:
+    radial-gradient(1200px 500px at 12% -8%, #dcefff 0%, transparent 60%),
+    radial-gradient(900px 420px at 92% 6%, #ffe9d6 0%, transparent 60%),
+    linear-gradient(180deg, #f2f8ff 0%, #f8fbff 55%, #fffaf4 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
+
+/** 数字は等幅で。ならんだときに桁がずれない */
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/**
+ * カードの影。下に薄く落とすだけにする。
+ * 子ども向けだからと影を強くすると、紙が浮いて見えて文字が読みにくくなる。
+ */
+.card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow:
+    0 1px 0 0 rgba(15, 37, 64, 0.04),
+    0 10px 26px -18px rgba(14, 116, 190, 0.55);
+}
+
+/** 押せるものは、押した瞬間に少し沈む */
+.tap { transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
+.tap:active { transform: scale(.985); }
