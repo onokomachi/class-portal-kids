@@ -58,8 +58,8 @@ export default function App() {
   if (!isConfigured) {
     return (
       <div className="min-h-screen grid place-items-center p-6">
-        <div className="max-w-sm rounded-2xl bg-white border border-slate-200 p-6 text-center">
-          <p className="font-bold text-slate-800">まだ せっていが すんでいません</p>
+        <div className="max-w-sm card ring-1 ring-slate-100 p-6 text-center">
+          <p className="font-black text-ink">まだ せっていが すんでいません</p>
           <p className="text-sm text-slate-500 mt-2">せんせいに おしえてね</p>
         </div>
       </div>
@@ -78,11 +78,11 @@ export default function App() {
   return (
     <>
       {grades.length > 1 && (
-        <div className="bg-white/70 border-b border-slate-200">
+        <div className="bg-white/60 border-b border-slate-100">
           <div className="max-w-2xl mx-auto px-5 py-2 flex items-center gap-2">
-            <label htmlFor="grade" className="text-xs text-slate-500">がくねん</label>
+            <label htmlFor="grade" className="text-[11px] font-bold text-slate-500">がくねん</label>
             <select id="grade" value={grade} onChange={(e) => setGrade(Number(e.target.value))}
-              className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs">
+              className="rounded-lg ring-1 ring-slate-200 bg-white px-2 py-1 text-xs font-bold">
               {grades.map((g) => <option key={g} value={g}>{g}年</option>)}
             </select>
           </div>
@@ -92,6 +92,7 @@ export default function App() {
         student={student}
         due={due}
         units={units}
+        effort={effort}
         loading={loading || activity.loading}
         onReload={() => { void reload(); void activity.reload(); void totals.reload(); }}
         onJoin={() => setShowJoin(true)}
