@@ -20,8 +20,11 @@ import {
 } from 'lucide-react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import { Trend } from './Trend';
+import { TestTrend } from './TestTrend';
 import { Card, CardTitle, BigStat, DayGrid, LinkRow, SubjectTag, pct, placeLabel } from './kidsUi';
-import type { Effort, StrongUnit, NextStep, SelfCompare, UnitAbility, SkillAbility } from '../lib/useMine';
+import type {
+  Effort, StrongUnit, NextStep, SelfCompare, UnitAbility, SkillAbility, TestSeries,
+} from '../lib/useMine';
 import type { WeekPoint } from 'learning-app-kit/sync';
 
 function linkTo(url: string | undefined, student: StudentIdentity | null): string | undefined {
@@ -38,9 +41,10 @@ interface Props {
   trend: WeekPoint[];
   units: UnitAbility[];
   hard: SkillAbility[];
+  tests: TestSeries[];
 }
 
-export function Mine({ student, effort, strengths, next, compare, trend, units, hard }: Props) {
+export function Mine({ student, effort, strengths, next, compare, trend, units, hard, tests }: Props) {
   const totalMastered = strengths.reduce((s, u) => s + u.mastered, 0);
   const nothingYet = effort.totalDays === 0 && totalMastered === 0;
 
@@ -88,6 +92,9 @@ export function Mine({ student, effort, strengths, next, compare, trend, units, 
 
       {/* その推移と、項目ごとのできぐあい */}
       <Trend student={student} trend={trend} units={units} hard={hard} />
+
+      {/* 本番テストの点。満点のちがう回は混ぜない */}
+      <TestTrend series={tests} />
 
       {/* できるようになったこと。「できていない数」は出さない */}
       {totalMastered > 0 && (

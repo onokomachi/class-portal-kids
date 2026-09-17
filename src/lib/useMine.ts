@@ -17,7 +17,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   fetchMyActivity, streakDays, totalsBetween, fetchMySkillTotals, weeklyTrend,
+  fetchMyTests, testTrend,
   type MyActivityRow, type MySkillRow, type MySkillTotalRow, type WeekPoint,
+  type MyTestRow, type TestPoint,
 } from 'learning-app-kit/sync';
 import { lookupSkill, CATALOGS, type AppCatalog } from 'learning-app-kit/catalog';
 import { portalConfig } from './portal';
@@ -277,4 +279,60 @@ export function toHardSkills(rows: readonly MySkillTotalRow[], limit = 5): Skill
     });
   }
   return out.sort((a, b) => a.rate - b.rate).slice(0, limit);
+}
+
+/* ---------- 本番テストの点数 ---------- */
+
+export function useTests(studentId: string | null) {
+  const [rows, setRows] = useState<MyTestRow[]>([]);
+  const load = useCallback(async () => {
+    if (!studentId) { setRows([]); return; }
+    const r = await fetchMyTests(portalConfig, studentId);
+    setRows(r.ok ? r.rows : []);
+  }, [studentId]);
+  useEffect(() => { void load(); }, [load]);
+  return { rows, reload: load };
+}
+
+/** グラフに出す1本ぶん。満点のちがう回は混ぜない */
+export interface TestSeries {
+  appId: string;
+  appTitle: string;
+  subject: string;
+  mode: string;
+  max: number;
+  points: TestPoint[];
+}
+
+/**
+ * 単元と面（表／裏）ごとに、テストの点の推移を作る。
+ *
+ * **満点のちがう回を同じ線に混ぜない。** 表100点満点の82点と
+ * 裏50点満点の45点を1本の線にすると、下がったように見える。
+ *
+ * 1回しか受けていないものも出す。「前より伸びた」はまだ言えないが、
+ * 「何点取れたか」は本人にとって意味のある事実だから。
+ */
+export function toTestSeries(rows: readonly MyTestRow[], grade: number): TestSeries[] {
+  const map = new Map<string, MyTestRow[]>();
+  for (const r of rows) {
+    const key = `${r.app_id}|${r.mode ?? ''}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(r);
+  }
+  const out: TestSeries[] = [];
+  for (const [key, list] of map) {
+    const [appId, mode] = key.split('|');
+    const app = CATALOGS[appId!];
+    if (!app || app.grade !== grade) continue;
+    const points = testTrend(list);
+    if (points.length === 0) continue;
+    out.push({
+      appId: appId!, appTitle: app.title, subject: app.subject, mode: mode ?? '',
+      max: points[0]!.max, points,
+    });
+  }
+  // 新しく受けたものを上に
+  return out.sort((a, b) =>
+    (b.points.at(-1)?.date ?? '').localeCompare(a.points.at(-1)?.date ?? ''));
 }
