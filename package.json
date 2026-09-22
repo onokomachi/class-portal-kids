@@ -11,7 +11,7 @@
     "check": "npm run lint && npm run build"
   },
   "dependencies": {
-    "learning-app-kit": "https://github.com/onokomachi/learning-app-kit/archive/9f5795f96a786031f408f5ff5e2f4cd9b72e67d0.tar.gz",
+    "learning-app-kit": "https://github.com/onokomachi/learning-app-kit/archive/c641871954b10c218b083d072e4850f45a93b839.tar.gz",
     "lucide-react": "^0.546.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1"
