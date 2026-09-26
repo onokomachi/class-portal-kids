@@ -2,7 +2,7 @@
  * 「じぶんの きろく」の画面。
  *
  * 出すもの: やった日、つづいた日数、先週の自分とくらべた正答率、その推移、
- *           たんげんごとの できぐあい、ねらうと効くところ、
+ *           たんげんごとの できぐあい、ねらうと効くところ、実力の階段（今の段・セーブ）、
  *           できるようになったこと、つぎに やるといいところ。
  * 出さないもの: 順位、学級の平均、他の子との比較、できていない数。
  *
@@ -21,6 +21,8 @@ import {
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import { Trend } from './Trend';
 import { TestTrend } from './TestTrend';
+import { StairsCard } from './StairsCard';
+import type { StairsOverview } from '../lib/useTrials';
 import { Card, CardTitle, BigStat, DayGrid, LinkRow, SubjectTag, pct, placeLabel } from './kidsUi';
 import type {
   Effort, StrongUnit, NextStep, SelfCompare, UnitAbility, SkillAbility, TestSeries,
@@ -42,11 +44,12 @@ interface Props {
   units: UnitAbility[];
   hard: SkillAbility[];
   tests: TestSeries[];
+  stairs: StairsOverview;
 }
 
-export function Mine({ student, effort, strengths, next, compare, trend, units, hard, tests }: Props) {
+export function Mine({ student, effort, strengths, next, compare, trend, units, hard, tests, stairs }: Props) {
   const totalMastered = strengths.reduce((s, u) => s + u.mastered, 0);
-  const nothingYet = effort.totalDays === 0 && totalMastered === 0;
+  const nothingYet = effort.totalDays === 0 && totalMastered === 0 && stairs.climbs === 0;
 
   if (!student) {
     return (
@@ -95,6 +98,9 @@ export function Mine({ student, effort, strengths, next, compare, trend, units, 
 
       {/* 本番テストの点。満点のちがう回は混ぜない */}
       <TestTrend series={tests} />
+
+      {/* 実力の階段。単元ごとに今の段・セーブ・頂点までの残りを、アプリと同じ見た目で */}
+      <StairsCard overview={stairs} student={student} />
 
       {/* できるようになったこと。「できていない数」は出さない */}
       {totalMastered > 0 && (

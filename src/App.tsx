@@ -15,6 +15,7 @@ import {
   useActivity, useSkillTotals, toEffort, toStrengths, toNextSteps, toSelfCompare,
   toTrend, toUnitAbility, toHardSkills, useTests, toTestSeries,
 } from './lib/useMine';
+import { useTrials, toStairs } from './lib/useTrials';
 import { Join } from './components/Join';
 import { Hub } from './components/Hub';
 import { Mine } from './components/Mine';
@@ -52,6 +53,8 @@ export default function App() {
   const hard = useMemo(() => toHardSkills(totals.rows), [totals.rows]);
   const testRows = useTests(student?.studentId ?? null);
   const tests = useMemo(() => toTestSeries(testRows.rows, grade), [testRows.rows, grade]);
+  const trialRows = useTrials(student?.studentId ?? null);
+  const stairs = useMemo(() => toStairs(trialRows.rows, grade), [trialRows.rows, grade]);
 
   useEffect(() => {
     try { localStorage.setItem(GRADE_KEY, String(grade)); } catch { /* 保存できなくても動く */ }
@@ -96,13 +99,13 @@ export default function App() {
         units={units}
         effort={effort}
         loading={loading || activity.loading}
-        onReload={() => { void reload(); void activity.reload(); void totals.reload(); void testRows.reload(); }}
+        onReload={() => { void reload(); void activity.reload(); void totals.reload(); void testRows.reload(); void trialRows.reload(); }}
         onJoin={() => setShowJoin(true)}
         tab={tab}
         onTab={setTab}
         mine={
           <Mine student={student} effort={effort} strengths={strengths} next={next}
-            compare={compare} trend={trend} units={ability} hard={hard} tests={tests} />
+            compare={compare} trend={trend} units={ability} hard={hard} tests={tests} stairs={stairs} />
         }
       />
     </>
