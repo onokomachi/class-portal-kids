@@ -4,14 +4,14 @@
  * 各アプリの実力の階段と同じ見た目（黒の地・ネオンの水色・セーブはオレンジ）にして、
  * ここで見たものとアプリで見たものが同じだとすぐ分かるようにする。
  *
- * 出すもの: 今の段・セーブ・自己最高段・頂点まであと何段・登った回数。
+ * 出すもの: 今の段・セーブ・次のセーブまでの回数・自己最高段・頂点まであと何段・登った回数・無限のランク。
  * 出さないもの: 他の子の段、順位、学級の分布。
  */
 import { useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import { MiniStairs } from 'learning-app-kit/react';
-import { floorName, TRIAL_NAME, TRIAL_SUBTITLE, SAVE_NAME } from 'learning-app-kit/trial';
+import { floorName, rankOf, TRIAL_NAME, TRIAL_SUBTITLE, SAVE_NAME, SEAL_COUNT } from 'learning-app-kit/trial';
 import type { StairsOverview, UnitStairs } from '../lib/useTrials';
 
 const BG = '#010307';
@@ -105,6 +105,7 @@ function Stat({ code, value, unit, label }: { code: string; value: number; unit:
 function UnitRow({ u, href }: { u: UnitStairs; href?: string }) {
   const { summary: s, floors } = u;
   const left = Math.max(0, floors - s.best);
+  const rank = rankOf(s.endlessBestStreak);
   const body = (
     <>
       <MiniStairs F={floors} reached={s.best} saved={s.sealed} size={44} />
@@ -123,6 +124,16 @@ function UnitRow({ u, href }: { u: UnitStairs; href?: string }) {
           <span className="whitespace-nowrap">
             自己最高 <span style={{ color: CYAN }}>{s.best > 0 ? floorName(s.best, floors) : '—'}</span>
           </span>
+          {s.nextSeal && s.nextSeal.count > 0 && (
+            <span className="whitespace-nowrap" style={{ color: ORANGE }}>
+              {floorName(s.nextSeal.floor, floors)} {SAVE_NAME}まで {Math.min(s.nextSeal.count, SEAL_COUNT)}/{SEAL_COUNT}
+            </span>
+          )}
+          {rank && (
+            <span className="whitespace-nowrap">
+              ランク <span style={{ color: rank.world.color }}>{rank.name}</span>
+            </span>
+          )}
         </p>
       </div>
       <div className="shrink-0 text-right">

@@ -22,6 +22,10 @@ export interface MyTrialRow {
   solo_complete: boolean;
   ts: number;
   event_id: string;
+  /** 無限の最高連続正解（ランクのもと） */
+  best_streak?: number;
+  /** 極限をセーブ地点から始めた回の、突破済みとみなした段の数 */
+  start_floor?: number;
 }
 
 export async function fetchMyTrials(studentId: string | null): Promise<MyTrialRow[]> {
@@ -80,6 +84,8 @@ const toRecord = (r: MyTrialRow): TrialRecord => ({
   floors: Number(r.floors) || 0,
   score: Number(r.score) || 0,
   soloComplete: !!r.solo_complete,
+  bestStreak: Number(r.best_streak) || 0,
+  start: Number(r.start_floor) || 0,
 });
 
 export function toStairs(rows: readonly MyTrialRow[], grade: number, now = Date.now()): StairsOverview {
