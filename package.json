@@ -9,10 +9,11 @@
     "preview": "vite preview",
     "lint": "tsc --noEmit",
     "check": "npm run platform && npm run lint && npm run build",
-    "platform": "learning-app-kit-platform check"
+    "platform": "learning-app-kit-platform check",
+    "prebuild": "npm run platform"
   },
   "dependencies": {
-    "learning-app-kit": "https://github.com/onokomachi/learning-app-kit/archive/99a75864184a0467cc43f8346b9a7b5619d9315a.tar.gz",
+    "learning-app-kit": "https://github.com/onokomachi/learning-app-kit/archive/be40ba43a9c10fcfdc7cbfe75ba98dbbb8f2877a.tar.gz",
     "lucide-react": "^0.546.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1"
