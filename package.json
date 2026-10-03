@@ -8,10 +8,11 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
-    "check": "npm run lint && npm run build"
+    "check": "npm run platform && npm run lint && npm run build",
+    "platform": "learning-app-kit-platform check"
   },
   "dependencies": {
-    "learning-app-kit": "https://github.com/onokomachi/learning-app-kit/archive/acf894a6c9d99794da2b94a7ad41d669aa52424a.tar.gz",
+    "learning-app-kit": "https://github.com/onokomachi/learning-app-kit/archive/99a75864184a0467cc43f8346b9a7b5619d9315a.tar.gz",
     "lucide-react": "^0.546.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1"
@@ -24,5 +25,8 @@
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"
+  },
+  "learningApp": {
+    "family": "portal"
   }
 }
