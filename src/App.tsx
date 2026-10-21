@@ -16,6 +16,7 @@ import {
   toTrend, toUnitAbility, toHardSkills, useTests, toTestSeries,
 } from './lib/useMine';
 import { useTrials, toStairs } from './lib/useTrials';
+import { useSanmon } from './lib/useSanmon';
 import { Join } from './components/Join';
 import { Hub } from './components/Hub';
 import { Mine } from './components/Mine';
@@ -55,6 +56,7 @@ export default function App() {
   const tests = useMemo(() => toTestSeries(testRows.rows, grade), [testRows.rows, grade]);
   const trialRows = useTrials(student?.studentId ?? null);
   const stairs = useMemo(() => toStairs(trialRows.rows, grade), [trialRows.rows, grade]);
+  const sanmon = useSanmon(student?.studentId ?? null);
 
   useEffect(() => {
     try { localStorage.setItem(GRADE_KEY, String(grade)); } catch { /* 保存できなくても動く */ }
@@ -99,7 +101,8 @@ export default function App() {
         units={units}
         effort={effort}
         loading={loading || activity.loading}
-        onReload={() => { void reload(); void activity.reload(); void totals.reload(); void testRows.reload(); void trialRows.reload(); }}
+        onReload={() => { void reload(); void activity.reload(); void totals.reload(); void testRows.reload(); void trialRows.reload(); void sanmon.reload(); }}
+        sanmon={grade === 4 ? { status: sanmon.status, units: sanmon.units } : null}
         onJoin={() => setShowJoin(true)}
         tab={tab}
         onTab={setTab}
