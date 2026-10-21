@@ -1,37 +1,44 @@
 @import "tailwindcss";
 
 /**
- * 子ども用ハブの配色。
+ * 子ども用ハブの配色 —— SANMON:04 と同じ世界観（2026-10〜）。
  *
- * 明るいままにしてある。1人1台の端末で、教室の明るさのもとで小4が読む画面なので、
- * 暗い配色は文字が細って見えづらい（先生用は職員室で数字を読むための別の道具）。
+ * 黒に近い深い緑の地に、エメラルドと金色に光るパネル。ハブから SANMON へ行き来しても
+ * 同じ「ゲームの世界」の中にいると感じられるようにする。
+ * ただし読みやすさは削らない: 本文の文字は明るく太く、地との明るさの差を大きく取る
+ * （小さい文字は #eafff4 / #a7c9ba、地は #04110d 前後）。
  *
- * 色の役目を固定する:
+ * 色の役目は前と同じに固定する:
  *   そら色  … いまやること・すすむ先
  *   みどり  … つづけたこと（努力）
- *   きいろ  … できるようになったこと
+ *   きいろ  … できるようになったこと・スタミナ
  *   だいだい… ねらうと効くところ（「にがて」とは書かない）
+ *
+ * 部品は明るい配色のクラス（bg-white・bg-sky-50 など）で書いてあるので、下の「暗い世界への置きかえ」で
+ * まとめて読みかえる。新しい部品を足すときも、同じクラスを使えば この世界観になる。
  */
 @theme {
-  --color-sky1: #0ea5e9;
-  --color-sky2: #38bdf8;
-  --color-grass: #10b981;
-  --color-sun: #f59e0b;
+  --color-sky1: #38bdf8;
+  --color-sky2: #7dd3fc;
+  --color-grass: #34d399;
+  --color-sun: #fbbf24;
   --color-flame: #fb7185;
-  --color-ink: #0f2540;
-  --color-mute: #64748b;
+  --color-ink: #eafff4;
+  --color-mute: #a7c9ba;
 }
 
-:root { color-scheme: light; }
+:root { color-scheme: dark; background-color: #000; }
 
 body {
   margin: 0;
   color: var(--color-ink);
   font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   background:
-    radial-gradient(1200px 500px at 12% -8%, #dcefff 0%, transparent 60%),
-    radial-gradient(900px 420px at 92% 6%, #ffe9d6 0%, transparent 60%),
-    linear-gradient(180deg, #f2f8ff 0%, #f8fbff 55%, #fffaf4 100%);
+    radial-gradient(900px 480px at 15% -10%, rgba(16, 185, 129, 0.22) 0%, transparent 60%),
+    radial-gradient(800px 420px at 95% 0%, rgba(245, 158, 11, 0.14) 0%, transparent 60%),
+    linear-gradient(rgba(52, 211, 153, 0.05) 1px, transparent 1px) 0 0 / 36px 36px,
+    linear-gradient(90deg, rgba(52, 211, 153, 0.05) 1px, transparent 1px) 0 0 / 36px 36px,
+    linear-gradient(180deg, #03100c 0%, #020a08 60%, #000 100%);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -39,18 +46,68 @@ body {
 /** 数字は等幅で。ならんだときに桁がずれない */
 .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
 
-/**
- * カードの影。下に薄く落とすだけにする。
- * 子ども向けだからと影を強くすると、紙が浮いて見えて文字が読みにくくなる。
- */
-.card {
-  background: #fff;
+/** SANMON の hud-panel と同じ、光るふちのパネル */
+.hud, .card {
+  background: linear-gradient(160deg, rgba(8, 32, 25, 0.92), rgba(3, 14, 11, 0.94));
   border-radius: 24px;
   box-shadow:
-    0 1px 0 0 rgba(15, 37, 64, 0.04),
-    0 10px 26px -18px rgba(14, 116, 190, 0.55);
+    inset 0 0 0 1px rgba(52, 211, 153, 0.28),
+    0 0 22px -6px rgba(16, 185, 129, 0.35),
+    0 12px 30px -18px rgba(0, 0, 0, 0.9);
+}
+
+/** SANMON のタイトル文字（緑→金のグラデーションで光る） */
+.hologram {
+  background: linear-gradient(90deg, #6ee7b7, #34d399 45%, #fbbf24);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.45));
 }
 
 /** 押せるものは、押した瞬間に少し沈む */
 .tap { transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
 .tap:active { transform: scale(.985); }
+
+/* =====================================================================
+ * 暗い世界への置きかえ（@layer の外に置いて、Tailwind のユーティリティに勝たせる）
+ * ===================================================================== */
+
+/* 白い地 → パネル */
+.bg-white { background-color: rgba(8, 30, 24, 0.92) !important; }
+.bg-white\/80 { background-color: rgba(2, 12, 9, 0.82) !important; }
+.bg-white\/60 { background-color: rgba(2, 12, 9, 0.6) !important; }
+.bg-slate-50 { background-color: rgba(255, 255, 255, 0.04) !important; }
+.bg-slate-100 { background-color: rgba(255, 255, 255, 0.07) !important; }
+
+/* うすい色の地 → その色が うっすら光る地 */
+.bg-sky-50 { background-color: rgba(56, 189, 248, 0.10) !important; }
+.bg-sky-100 { background-color: rgba(56, 189, 248, 0.18) !important; }
+.bg-emerald-50 { background-color: rgba(52, 211, 153, 0.10) !important; }
+.bg-emerald-200 { background-color: rgba(52, 211, 153, 0.30) !important; }
+.bg-amber-50, .bg-amber-50\/70 { background-color: rgba(251, 191, 36, 0.10) !important; }
+.bg-rose-50 { background-color: rgba(251, 113, 133, 0.10) !important; }
+.bg-rose-100 { background-color: rgba(251, 113, 133, 0.18) !important; }
+
+/* 濃い文字色 → 暗い地で読める明るさへ */
+.text-slate-800, .text-slate-700 { color: #e2f3ec !important; }
+.text-slate-600, .text-slate-500 { color: #a7c9ba !important; }
+.text-slate-400, .text-slate-300 { color: #6f8f82 !important; }
+.text-sky-700, .text-sky-600 { color: #7dd3fc !important; }
+.text-emerald-700, .text-emerald-600 { color: #6ee7b7 !important; }
+.text-amber-900, .text-amber-800 { color: #fde68a !important; }
+.text-amber-600 { color: #fcd34d !important; }
+.text-rose-700, .text-rose-600 { color: #fda4af !important; }
+
+/* 枠 → うすく光る枠 */
+.ring-slate-100, .ring-slate-200 { --tw-ring-color: rgba(52, 211, 153, 0.18) !important; }
+.ring-sky-100, .ring-sky-200 { --tw-ring-color: rgba(56, 189, 248, 0.35) !important; }
+.ring-emerald-100 { --tw-ring-color: rgba(52, 211, 153, 0.35) !important; }
+.ring-amber-100, .ring-amber-200 { --tw-ring-color: rgba(251, 191, 36, 0.4) !important; }
+.ring-rose-100, .ring-rose-200 { --tw-ring-color: rgba(251, 113, 133, 0.4) !important; }
+.border-slate-100, .border-slate-200 { border-color: rgba(52, 211, 153, 0.18) !important; }
+.border-rose-200 { border-color: rgba(251, 113, 133, 0.4) !important; }
+
+/* 入力欄・選択欄は 文字が読めるように */
+select, input { color: #eafff4; }
+select option { color: #0f2540; }

@@ -15,6 +15,8 @@ import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import { Card, CardTitle, LinkRow, DayGrid, SubjectTag, placeLabel } from './kidsUi';
 import type { DueItem, UnitProgress } from '../lib/useProgress';
 import type { Effort } from '../lib/useMine';
+import type { SanmonStatus, SanmonUnitProgress } from 'learning-app-kit/sanmon';
+import { SanmonSection } from './SanmonSection';
 
 /** ハブから各アプリへのリンク。名乗っていれば学級コードと番号を引きつぐ。 */
 function linkTo(url: string | undefined, student: StudentIdentity | null): string | undefined {
@@ -34,19 +36,21 @@ interface Props {
   onTab: (t: 'home' | 'mine') => void;
   /** 「じぶんの きろく」タブの中身。ここでは中身を知らずに置くだけにする */
   mine: React.ReactNode;
+  /** SANMON:04（4年のゲーム）。4年を見ているときだけ渡す */
+  sanmon?: { status: SanmonStatus | null; units: SanmonUnitProgress[] } | null;
 }
 
-export function Hub({ student, due, units, effort, loading, onReload, onJoin, tab, onTab, mine }: Props) {
+export function Hub({ student, due, units, effort, loading, onReload, onJoin, tab, onTab, mine, sanmon }: Props) {
   const totalMastered = units.reduce((s, u) => s + u.mastered, 0);
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-slate-100">
+      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-slate-100 shadow-[0_8px_24px_-16px_rgba(16,185,129,0.6)]">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Logo />
             <div>
-              <h1 className="font-black text-ink leading-tight">がくしゅうポータル</h1>
+              <h1 className="hologram font-black text-lg leading-tight tracking-wider">がくしゅうポータル</h1>
               <p className="text-[11px] text-mute">
                 {student ? `${student.joinCode}　${student.number}ばん` : 'まだ とうろく していないよ'}
               </p>
@@ -72,7 +76,10 @@ export function Hub({ student, due, units, effort, loading, onReload, onJoin, ta
         <main className="max-w-2xl mx-auto px-5 py-6">{mine}</main>
       ) : (
         <main className="max-w-2xl mx-auto px-5 py-6 space-y-6">
-          {!student && (
+          {/* SANMON の入口と、町を開くまでのメーター。ゲームのすぐ下に「どの単元を あと何」を置く */}
+          {sanmon && <SanmonSection student={student} status={sanmon.status} units={sanmon.units} onJoin={onJoin} />}
+
+          {!student && !sanmon && (
             <button onClick={onJoin}
               className="tap w-full text-left card ring-1 ring-amber-200 bg-amber-50 p-4">
               <p className="font-black text-amber-900 text-sm">がっきゅうコードを 入れよう</p>

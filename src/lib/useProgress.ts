@@ -86,7 +86,8 @@ export function toUnitProgress(rows: readonly MySkillRow[], grade: number, now =
     byApp.get(r.app_id)!.push(r);
   }
   return Object.values(CATALOGS)
-    .filter((a) => a.grade === grade)
+    // SANMON（subject「ゲーム」）は単元ではないので、ここには並べない（ホームの上に専用の入口がある）
+    .filter((a) => a.grade === grade && a.subject !== 'ゲーム')
     .map((app) => {
       const mine = byApp.get(app.app_id) ?? [];
       return {
