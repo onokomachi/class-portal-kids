@@ -6,7 +6,7 @@
  *
  * メーターの4つ（learning-app-kit/sanmon と同じきまり。全部そろうと開く）:
  *   練習 … 練習の項目を「できた」（5回れんぞくノーミス）にした数
- *   テスト … 本番テスト（ぜんぶ）で8割以上を取った日の数（ちがう日に3回）
+ *   テスト … 本番テストで8割以上を取った日の数（ちがう日に3日。「ぜんぶ」で8割、または同じ日に表と裏の両方で8割。同じ日は何回でも1日）
  *   階段 … 実力の階段を ひとりで登った段
  *   ねばり … ひとりで練習した日の数
  * 正答率や順位は出さない（くらべる相手は過去の自分だけ）。
@@ -83,6 +83,9 @@ export function SanmonSection({ student, status, units, onJoin }: {
           <p className="text-[11px] text-emerald-100/70 mt-0.5 mb-3 leading-relaxed">
             単元の アプリで 4つ ぜんぶ そろうと、SANMON の その町が ひらくよ。アプリで 1問 正解するごとに スタミナが 1 たまるよ。
           </p>
+          <p className="text-[11px] text-amber-200/80 -mt-2 mb-3 leading-relaxed">
+            テスト8割は「8割を とった日」の数。「ぜんぶ」で8割か、同じ日に「表」と「裏」の 両方で8割なら 1日。同じ日に 何回 とっても 1日だよ。
+          </p>
           <div className="grid gap-2">
             {shown.map((u) => <LockedTown key={u.key} u={u} student={student} />)}
           </div>
@@ -121,7 +124,7 @@ function LockedTown({ u, student }: { u: SanmonUnitProgress; student: StudentIde
       </div>
       <div className="grid grid-cols-4 gap-1.5">
         <MeterBox label="練習" m={u.practice!} unit="こ" />
-        <MeterBox label="テスト8割" m={u.test!} unit="回" />
+        <MeterBox label="テスト8割" m={u.test!} unit="日" />
         <MeterBox label="階段" m={u.trial!} unit="段" />
         <MeterBox label="ねばり" m={u.days!} unit="日" />
       </div>
