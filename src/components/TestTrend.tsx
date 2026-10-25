@@ -13,15 +13,18 @@
  *
  * 下の日付のボタンを押すと、その回の問題ごとの ○× が出る（TestDetail）。
  * 答案はハブを開いたときには読まず、押した1回ぶんだけ読む（通信量を小さくする）。
+ * × の問題からは、そのアプリへ飛んで、どの項目を練習すればよいかを示す（まちがいのすぐあとに正しい答えを見て、
+ * もう一度 解いて思い出す＝テスト効果。Adesope ほか 2017 のメタ分析）。項目をじかに開く仕組みはアプリに無いので、項目名を出す。
  */
 import { useEffect, useState } from 'react';
 import { ClipboardCheck, Check, X, Loader2 } from 'lucide-react';
-import { fetchMyTestDetail, type MyTestRow, type MyTestStep } from 'learning-app-kit/sync';
+import { fetchMyTestDetail, buildHandoffUrl, type MyTestRow, type MyTestStep, type StudentIdentity } from 'learning-app-kit/sync';
+import { CATALOGS } from 'learning-app-kit/catalog';
 import { Card, CardTitle, SubjectTag, md } from './kidsUi';
 import type { TestSeries } from '../lib/useMine';
 import { portalConfig } from '../lib/portal';
 
-export function TestTrend({ series, studentId }: { series: TestSeries[]; studentId: string | null }) {
+export function TestTrend({ series, student }: { series: TestSeries[]; student: StudentIdentity | null }) {
   const [open, setOpen] = useState<{ s: TestSeries; t: MyTestRow } | null>(null);
   if (series.length === 0) return null;
 
@@ -58,7 +61,7 @@ export function TestTrend({ series, studentId }: { series: TestSeries[]; student
         ))}
       </div>
       <p className="mt-2 text-[11px] text-mute">日づけを おすと、その回の ○× が 見られるよ</p>
-      {open && <TestDetail series={open.s} test={open.t} studentId={studentId} onClose={() => setOpen(null)} />}
+      {open && <TestDetail series={open.s} test={open.t} student={student} onClose={() => setOpen(null)} />}
 
       <p className="mt-3 text-[11px] text-mute/80 leading-relaxed">
         くらべているのは 前の じぶん だけだよ。ほかの人の点は 出ないよ。
@@ -135,9 +138,12 @@ function Chart({ series }: { series: TestSeries }) {
 }
 
 /** 1回ぶんのテストの、問題ごとの ○×（押したときだけ読む） */
-function TestDetail({ series, test, studentId, onClose }: {
-  series: TestSeries; test: MyTestRow; studentId: string | null; onClose: () => void;
+function TestDetail({ series, test, student, onClose }: {
+  series: TestSeries; test: MyTestRow; student: StudentIdentity | null; onClose: () => void;
 }) {
+  const studentId = student?.studentId ?? null;
+  const appUrl = CATALOGS[series.appId]?.url;
+  const appLink = appUrl ? (student ? buildHandoffUrl(appUrl, student.joinCode, student.number) : appUrl) : undefined;
   const [steps, setSteps] = useState<MyTestStep[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -180,6 +186,12 @@ function TestDetail({ series, test, studentId, onClose }: {
                     </span>
                     {x.q && <span className="block text-sm text-ink break-words">{x.q}</span>}
                     {!x.correct && x.a && <span className="block text-xs text-rose-700 font-bold mt-0.5">こたえ：{x.a}</span>}
+                    {!x.correct && appLink && (
+                      <a href={appLink}
+                        className="tap mt-1.5 inline-flex items-center gap-1 rounded-xl bg-white ring-1 ring-rose-200 px-3 py-2 text-xs font-black text-rose-700">
+                        アプリで「{x.title ?? 'この問題'}」を れんしゅう ▸
+                      </a>
+                    )}
                   </span>
                   {x.points != null && <span className="num shrink-0 text-[11px] text-mute font-bold">{x.earned ?? 0}/{x.points}</span>}
                 </li>
