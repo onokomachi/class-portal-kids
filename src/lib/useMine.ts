@@ -302,6 +302,8 @@ export interface TestSeries {
   mode: string;
   max: number;
   points: TestPoint[];
+  /** その線の1回ずつ（古い順）。押すと問題ごとの正誤を読む（event_id） */
+  tests: MyTestRow[];
 }
 
 /**
@@ -327,9 +329,13 @@ export function toTestSeries(rows: readonly MyTestRow[], grade: number): TestSer
     if (!app || app.grade !== grade) continue;
     const points = testTrend(list);
     if (points.length === 0) continue;
+    const max = points[0]!.max;
+    const tests = list
+      .filter((r) => r.total != null && Number(r.total_max ?? 0) === max)
+      .sort((a, b) => a.taken_date.localeCompare(b.taken_date) || a.event_id.localeCompare(b.event_id));
     out.push({
       appId: appId!, appTitle: app.title, subject: app.subject, mode: mode ?? '',
-      max: points[0]!.max, points,
+      max, points, tests,
     });
   }
   // 新しく受けたものを上に

@@ -7,16 +7,13 @@
  * フィードバックだった。他人と並べた数字はそこへ向かう。
  * 過去の自分と並べた数字なら「先週より伸びた／落ちた、では次どうするか」になる。
  *
- * ホームの先頭に「きょうまでの じぶん」を置いた。努力の記録がタブの奥にあると、
- * 見に行った子しか自分の積み上がりに気づけない。
+ * タブは3つ（2026-10 先生と決めた）。ホームは「各アプリへ飛ぶ」と「きょうの ふくしゅう」だけの かんたんな形。
+ * SANMON（4年のゲーム）は 専用のタブにまとめる。努力・テスト・階段は「じぶんの きろく」。
  */
-import { RotateCcw, ChevronRight, RefreshCw, Home, LineChart, Flame, Star } from 'lucide-react';
+import { RotateCcw, ChevronRight, RefreshCw, Home, LineChart, Star, Swords, UserCog } from 'lucide-react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
-import { Card, CardTitle, LinkRow, DayGrid, SubjectTag, placeLabel } from './kidsUi';
+import { CardTitle, LinkRow, SubjectTag, placeLabel } from './kidsUi';
 import type { DueItem, UnitProgress } from '../lib/useProgress';
-import type { Effort } from '../lib/useMine';
-import type { SanmonStatus, SanmonUnitProgress } from 'learning-app-kit/sanmon';
-import { SanmonSection } from './SanmonSection';
 
 /** ハブから各アプリへのリンク。名乗っていれば学級コードと番号を引きつぐ。 */
 function linkTo(url: string | undefined, student: StudentIdentity | null): string | undefined {
@@ -28,20 +25,22 @@ interface Props {
   student: StudentIdentity | null;
   due: DueItem[];
   units: UnitProgress[];
-  effort: Effort;
   loading: boolean;
   onReload: () => void;
   onJoin: () => void;
-  tab: 'home' | 'mine';
-  onTab: (t: 'home' | 'mine') => void;
+  /** 名乗った子が番号を変える（先生のパスワードを聞いてから） */
+  onChangeStudent: () => void;
+  tab: HubTab;
+  onTab: (t: HubTab) => void;
   /** 「じぶんの きろく」タブの中身。ここでは中身を知らずに置くだけにする */
   mine: React.ReactNode;
-  /** SANMON:04（4年のゲーム）。4年を見ているときだけ渡す */
-  sanmon?: { status: SanmonStatus | null; units: SanmonUnitProgress[] } | null;
+  /** SANMON タブの中身（4年を見ているときだけ。ほかの学年は null でタブを出さない） */
+  sanmon: React.ReactNode | null;
 }
 
-export function Hub({ student, due, units, effort, loading, onReload, onJoin, tab, onTab, mine, sanmon }: Props) {
-  const totalMastered = units.reduce((s, u) => s + u.mastered, 0);
+export type HubTab = 'home' | 'sanmon' | 'mine';
+
+export function Hub({ student, due, units, loading, onReload, onJoin, onChangeStudent, tab, onTab, mine, sanmon }: Props) {
 
   return (
     <div className="min-h-screen">
@@ -56,16 +55,29 @@ export function Hub({ student, due, units, effort, loading, onReload, onJoin, ta
               </p>
             </div>
           </div>
-          <button onClick={onReload} aria-label="さいしんにする"
-            className="tap rounded-xl ring-1 ring-slate-200 bg-white p-2 text-mute hover:text-sky-600">
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          </button>
+          <div className="flex items-center gap-1.5">
+            {student && (
+              <button onClick={onChangeStudent} aria-label="ばんごうを かえる（せんせいの パスワード）"
+                className="tap rounded-xl ring-1 ring-slate-200 bg-white px-2 py-1.5 text-[10px] font-black text-mute hover:text-sky-600 inline-flex items-center gap-1 whitespace-nowrap">
+                <UserCog size={14} />ばんごうを かえる
+              </button>
+            )}
+            <button onClick={onReload} aria-label="さいしんにする"
+              className="tap rounded-xl ring-1 ring-slate-200 bg-white p-2 text-mute hover:text-sky-600">
+              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+            </button>
+          </div>
         </div>
 
         <div className="max-w-2xl mx-auto px-5 flex gap-1.5 pb-2">
           <TabButton active={tab === 'home'} onClick={() => onTab('home')} icon={<Home size={15} />}>
             ホーム
           </TabButton>
+          {sanmon && (
+            <TabButton active={tab === 'sanmon'} onClick={() => onTab('sanmon')} icon={<Swords size={15} />}>
+              SANMON
+            </TabButton>
+          )}
           <TabButton active={tab === 'mine'} onClick={() => onTab('mine')} icon={<LineChart size={15} />}>
             じぶんの きろく
           </TabButton>
@@ -74,12 +86,11 @@ export function Hub({ student, due, units, effort, loading, onReload, onJoin, ta
 
       {tab === 'mine' ? (
         <main className="max-w-2xl mx-auto px-5 py-6">{mine}</main>
+      ) : tab === 'sanmon' && sanmon ? (
+        <main className="max-w-2xl mx-auto px-5 py-6 space-y-6">{sanmon}</main>
       ) : (
         <main className="max-w-2xl mx-auto px-5 py-6 space-y-6">
-          {/* SANMON の入口と、町を開くまでのメーター。ゲームのすぐ下に「どの単元を あと何」を置く */}
-          {sanmon && <SanmonSection student={student} status={sanmon.status} units={sanmon.units} onJoin={onJoin} />}
-
-          {!student && !sanmon && (
+          {!student && (
             <button onClick={onJoin}
               className="tap w-full text-left card ring-1 ring-amber-200 bg-amber-50 p-4">
               <p className="font-black text-amber-900 text-sm">がっきゅうコードを 入れよう</p>
@@ -88,9 +99,6 @@ export function Hub({ student, due, units, effort, loading, onReload, onJoin, ta
               </p>
             </button>
           )}
-
-          {/* きょうまでの じぶん。努力はタブの奥ではなく、いちばん先に見えるところに置く */}
-          {student && <TodayStrip effort={effort} mastered={totalMastered} onMore={() => onTab('mine')} />}
 
           {/* きょうの ふくしゅう。単元をまたいで、いちばん わすれかけているものから */}
           {due.length > 0 && (
@@ -147,64 +155,6 @@ export function Hub({ student, due, units, effort, loading, onReload, onJoin, ta
           </p>
         </main>
       )}
-    </div>
-  );
-}
-
-/**
- * ホームの先頭に出す、きょうまでの自分。
- * 出すのは「つづいた日数・この7日にやった数・できるようになった数」だけで、
- * 正答率はここに出さない——ホームを開くたびに出来不出来が目に入る場所にしない。
- */
-function TodayStrip({ effort, mastered, onMore }: {
-  effort: Effort; mastered: number; onMore: () => void;
-}) {
-  const week = effort.recent.slice(-7);
-  const nothing = effort.totalDays === 0 && mastered === 0;
-
-  return (
-    <Card tone="sky" className="p-5">
-      <div className="flex items-start justify-between gap-3 mb-3.5">
-        <h2 className="font-black text-ink">きょうまでの じぶん</h2>
-        <button onClick={onMore}
-          className="text-xs font-black text-sky-600 inline-flex items-center gap-0.5 shrink-0">
-          もっと見る <ChevronRight size={14} />
-        </button>
-      </div>
-
-      {nothing ? (
-        <p className="text-sm text-mute">
-          たんげんを ひとつ やってみよう。やった ぶんが ここに たまっていくよ。
-        </p>
-      ) : (
-        <>
-          <div className="grid grid-cols-3 gap-2.5 mb-4">
-            <Mini icon={<Flame size={14} className="text-rose-500" />} value={effort.streak}
-              unit="日" label="つづいて いるよ" tone="text-rose-500 bg-rose-50" />
-            <Mini value={effort.thisWeek} unit="もん" label="この7日で"
-              tone="text-emerald-600 bg-emerald-50" />
-            <Mini icon={<Star size={13} className="fill-amber-400 stroke-amber-500" />} value={mastered}
-              unit="こ" label="できた ところ" tone="text-amber-600 bg-amber-50" />
-          </div>
-
-          <p className="text-[11px] text-mute font-bold mb-1.5">この1しゅうかん</p>
-          <DayGrid days={week} columns={7} />
-        </>
-      )}
-    </Card>
-  );
-}
-
-function Mini({ icon, value, unit, label, tone }: {
-  icon?: React.ReactNode; value: number; unit: string; label: string; tone: string;
-}) {
-  const [text, bg] = tone.split(' ');
-  return (
-    <div className={`rounded-2xl px-2.5 py-2.5 text-center ${bg}`}>
-      <p className={`num font-black text-2xl leading-none ${text} flex items-center justify-center gap-1`}>
-        {icon}{value}<span className="text-xs font-black">{unit}</span>
-      </p>
-      <p className="text-[10px] text-mute mt-1 leading-tight font-bold">{label}</p>
     </div>
   );
 }

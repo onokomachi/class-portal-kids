@@ -1,5 +1,5 @@
 /**
- * ホームの先頭に出す SANMON:04（ゲーム）の入口と、町（単元）を開くまでの メーター。
+ * SANMON タブの SANMON:04（ゲーム）の入口と、町（単元）を開くまでの メーター。
  *
  * ねらい: 子どもがゲームに流れてしまうのではなく、「単元アプリで がんばる → スタミナがたまり 町が開く → SANMON で遊ぶ」の
  * 順に動くようにする。だから ゲームの入口のすぐ下に、「どの単元を あと何すれば 町が開くか」と その単元アプリへの道を並べる。
@@ -63,7 +63,7 @@ export function SanmonSection({ student, status, units, onJoin }: {
               <span className="num font-black text-amber-200 text-sm shrink-0">{stamina}<span className="text-[10px] text-amber-200/60">/{SANMON_RULES.maxStamina}</span></span>
             </div>
             <p className="text-[11px] text-emerald-100/80 leading-relaxed">
-              バトル あと <b className="num text-amber-300">{battles}</b> 回 ・ きょう たまった <b className="num text-amber-300">{status?.earnedToday ?? 0}</b>/{SANMON_RULES.dailyCap}
+              バトル あと <b className="num text-amber-300">{battles}</b> 回 ・ きょう たまった <b className="num text-amber-300">{status?.earnedToday ?? 0}</b>
               ・ ひらいた町 <b className="num text-emerald-300">{openCount}</b>/{units.length}
             </p>
           </div>
@@ -81,7 +81,7 @@ export function SanmonSection({ student, status, units, onJoin }: {
         <div className="hud rounded-3xl p-4">
           <p className="font-black text-emerald-200 text-sm">町を ひらこう</p>
           <p className="text-[11px] text-emerald-100/70 mt-0.5 mb-3 leading-relaxed">
-            単元の アプリで 4つ ぜんぶ そろうと、SANMON の その町が ひらくよ。アプリで 1問 正解するごとに スタミナが 1 たまるよ。
+            単元の アプリで 4つ ぜんぶ そろうと、SANMON の その町が ひらくよ。
           </p>
           <p className="text-[11px] text-amber-200/80 -mt-2 mb-3 leading-relaxed">
             テスト8割は「8割を とった日」の数。「ぜんぶ」で8割か、同じ日に「表」と「裏」の 両方で8割なら 1日。同じ日に 何回 とっても 1日だよ。
