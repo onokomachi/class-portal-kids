@@ -53,17 +53,24 @@ export function useProgress(studentId: string | null) {
   return { rows, error, loading, reload: load };
 }
 
-/** 復習の時期が来たものを、おくれが大きい順に。同じ単元からは1件までにする。 */
+/**
+ * 復習の時期が来たもの（間隔をあけて繰り返す：サーバの next_due_ts）。
+ *
+ * - 同じ単元からは1件まで、おくれが大きいものから選ぶ。
+ * - **ならべ方は教科・単元をまぜる**（交互練習。同じ種類を続けるより、まぜて解くほうが力がつく：
+ *   Brunmair & Richter 2019 のメタ分析、算数で効果が大きい）。教科ごとの列から、おくれの大きい順に1つずつ交互に取り出す。
+ * 画面は はじめの3つを「きょうの 3つ」として出し、のこりは開いて見る。
+ */
 export function toDueItems(rows: readonly MySkillRow[], limit = 6, now = Date.now()): DueItem[] {
   const seen = new Set<string>();
-  const out: DueItem[] = [];
+  const picked: DueItem[] = [];
   for (const r of dueFromRows(rows, now)) {
     if (seen.has(r.app_id)) continue;
     const c = lookupSkill(r.app_id, r.skill_id);
     const app = CATALOGS[r.app_id];
     if (!c || !app) continue;          // カタログに無い記号は出さない（子どもに記号を見せない）
     seen.add(r.app_id);
-    out.push({
+    picked.push({
       appId: r.app_id,
       appTitle: app.title,
       appUrl: app.url,
@@ -73,7 +80,21 @@ export function toDueItems(rows: readonly MySkillRow[], limit = 6, now = Date.no
       moduleTitle: c.module_title,
       overdueDays: Math.max(0, Math.floor((now - (r.next_due_ts ?? now)) / DAY)),
     });
-    if (out.length >= limit) break;
+  }
+  return interleaveBySubject(picked).slice(0, limit);
+}
+
+/** 教科ごとの列（中は元の順＝おくれの大きい順）から、1つずつ交互に取り出す。先頭はいちばんおくれている教科 */
+export function interleaveBySubject<T extends { subject: string }>(items: readonly T[]): T[] {
+  const queues = new Map<string, T[]>();
+  for (const it of items) {
+    if (!queues.has(it.subject)) queues.set(it.subject, []);
+    queues.get(it.subject)!.push(it);
+  }
+  const lists = [...queues.values()];
+  const out: T[] = [];
+  for (let i = 0; out.length < items.length; i++) {
+    for (const l of lists) if (l[i]) out.push(l[i]!);
   }
   return out;
 }

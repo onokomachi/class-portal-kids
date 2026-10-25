@@ -41,7 +41,7 @@ export function Join({ onDone, onSkip }: Props) {
           <div className="inline-grid place-items-center w-16 h-16 rounded-3xl bg-sky-500 text-white mb-3">
             <School size={30} />
           </div>
-          <h1 className="text-xl font-black text-slate-800">がくしゅうポータル</h1>
+          <h1 className="text-2xl font-black text-slate-800 tracking-[0.2em]">SOL</h1>
           <p className="text-sm text-slate-500 mt-1">はじめに、じぶんのことを おしえてね</p>
         </div>
 

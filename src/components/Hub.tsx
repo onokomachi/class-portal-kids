@@ -11,6 +11,7 @@
  * SANMON（4年のゲーム）は 専用のタブにまとめる。努力・テスト・階段は「じぶんの きろく」。
  */
 import { RotateCcw, ChevronRight, RefreshCw, Home, LineChart, Star, Swords, UserCog } from 'lucide-react';
+import { useState } from 'react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import { CardTitle, LinkRow, SubjectTag, placeLabel } from './kidsUi';
 import type { DueItem, UnitProgress } from '../lib/useProgress';
@@ -41,6 +42,7 @@ interface Props {
 export type HubTab = 'home' | 'sanmon' | 'mine';
 
 export function Hub({ student, due, units, loading, onReload, onJoin, onChangeStudent, tab, onTab, mine, sanmon }: Props) {
+  const [moreDue, setMoreDue] = useState(false);
 
   return (
     <div className="min-h-screen">
@@ -49,7 +51,7 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
           <div className="flex items-center gap-2.5">
             <Logo />
             <div>
-              <h1 className="hologram font-black text-lg leading-tight tracking-wider">がくしゅうポータル</h1>
+              <h1 className="hologram font-black text-xl leading-tight tracking-[0.2em]">SOL</h1>
               <p className="text-[11px] text-mute">
                 {student ? `${student.joinCode}　${student.number}ばん` : 'まだ とうろく していないよ'}
               </p>
@@ -100,20 +102,26 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
             </button>
           )}
 
-          {/* きょうの ふくしゅう。単元をまたいで、いちばん わすれかけているものから */}
+          {/* きょうの ふくしゅう。間をあけて（サーバの次の日）、教科・単元をまぜて（toDueItems）。はじめの3つを先に */}
           {due.length > 0 && (
             <section>
               <CardTitle icon={<RotateCcw size={18} className="text-emerald-600" />}
-                note="まえに できた ところを、わすれないうちに もういちど">
-                <span className="text-emerald-700">きょうの ふくしゅう</span>
+                note="わすれかけた ころに、いろいろな たんげんを まぜて やると 力が つくよ">
+                <span className="text-emerald-700">きょうの ふくしゅう 3つ</span>
               </CardTitle>
               <div className="space-y-2">
-                {due.map((d) => (
+                {(moreDue ? due : due.slice(0, 3)).map((d) => (
                   <LinkRow key={`${d.appId}/${d.skillId}`} href={linkTo(d.appUrl, student)} tone="grass"
                     subject={d.subject} title={d.appTitle} sub={placeLabel(d.moduleTitle, d.label)}
                     right={<ChevronRight size={20} className="shrink-0 text-emerald-600" />} />
                 ))}
               </div>
+              {due.length > 3 && (
+                <button onClick={() => setMoreDue((v) => !v)}
+                  className="tap mt-2 w-full rounded-xl py-2.5 text-xs font-black text-emerald-700 bg-emerald-50 ring-1 ring-emerald-100">
+                  {moreDue ? 'とじる' : `もっと やる（あと ${due.length - 3}）`}
+                </button>
+              )}
             </section>
           )}
 
@@ -161,7 +169,7 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
 
 function Logo() {
   return (
-    <svg width="30" height="30" viewBox="0 0 30 30" role="img" aria-label="がくしゅうポータル">
+    <svg width="30" height="30" viewBox="0 0 30 30" role="img" aria-label="SOL">
       <rect x="1" y="1" width="28" height="28" rx="9" fill="#e0f2fe" />
       {/* のびていく3本の棒。右肩上がりだけを描かないよう、いちばん右を少し高くするだけにする */}
       <rect x="8" y="17" width="4" height="6" rx="2" fill="#38bdf8" />
