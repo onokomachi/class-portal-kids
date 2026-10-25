@@ -46,7 +46,7 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-slate-100 shadow-[0_8px_24px_-16px_rgba(16,185,129,0.6)]">
+      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-slate-100 shadow-[0_8px_24px_-16px_rgba(139,92,246,0.7)]">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Logo />
@@ -89,7 +89,7 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
       {tab === 'mine' ? (
         <main className="max-w-2xl mx-auto px-5 py-6">{mine}</main>
       ) : tab === 'sanmon' && sanmon ? (
-        <main className="max-w-2xl mx-auto px-5 py-6 space-y-6">{sanmon}</main>
+        <main className="theme-sanmon max-w-2xl mx-auto px-5 py-6 space-y-6">{sanmon}</main>
       ) : (
         <main className="max-w-2xl mx-auto px-5 py-6 space-y-6">
           {!student && (
@@ -167,16 +167,9 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
   );
 }
 
+/** SOL のマーク（ロゴの わっかの部分。public/sol-mark.jpg） */
 function Logo() {
-  return (
-    <svg width="30" height="30" viewBox="0 0 30 30" role="img" aria-label="SOL">
-      <rect x="1" y="1" width="28" height="28" rx="9" fill="#e0f2fe" />
-      {/* のびていく3本の棒。右肩上がりだけを描かないよう、いちばん右を少し高くするだけにする */}
-      <rect x="8" y="17" width="4" height="6" rx="2" fill="#38bdf8" />
-      <rect x="13" y="13" width="4" height="10" rx="2" fill="#0ea5e9" />
-      <rect x="18" y="8" width="4" height="15" rx="2" fill="#10b981" />
-    </svg>
-  );
+  return <img src="/sol-mark.jpg" alt="SOL" width={36} height={36} className="w-9 h-9 rounded-xl ring-1 ring-sky-200 object-cover" />;
 }
 
 function TabButton({ active, onClick, icon, children }: {

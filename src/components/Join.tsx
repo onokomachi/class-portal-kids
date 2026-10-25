@@ -7,7 +7,7 @@
  */
 import { useState } from 'react';
 import { resolveStudent, type StudentIdentity } from 'learning-app-kit/sync';
-import { School, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { portalConfig } from '../lib/portal';
 
 interface Props {
@@ -38,9 +38,7 @@ export function Join({ onDone, onSkip }: Props) {
     <div className="min-h-screen grid place-items-center p-5">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <div className="inline-grid place-items-center w-16 h-16 rounded-3xl bg-sky-500 text-white mb-3">
-            <School size={30} />
-          </div>
+          <img src="/sol-mark.jpg" alt="" className="mx-auto w-24 h-24 rounded-3xl ring-1 ring-sky-200 mb-3 object-cover" />
           <h1 className="text-2xl font-black text-slate-800 tracking-[0.2em]">SOL</h1>
           <p className="text-sm text-slate-500 mt-1">はじめに、じぶんのことを おしえてね</p>
         </div>
