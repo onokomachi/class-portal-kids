@@ -7,9 +7,10 @@
  * 氏名はどこにも無い。サーバにあるのは「この学級の何番か」だけ。
  */
 import { useEffect, useMemo, useState } from 'react';
-import { getStudent, type StudentIdentity } from 'learning-app-kit/sync';
+import { getStudent, clearStudent, type StudentIdentity } from 'learning-app-kit/sync';
+import { UnlockPrompt } from 'learning-app-kit/react';
 import { listGrades } from 'learning-app-kit/catalog';
-import { isConfigured } from './lib/portal';
+import { isConfigured, portalConfig } from './lib/portal';
 import { useProgress, toDueItems, toUnitProgress } from './lib/useProgress';
 import {
   useActivity, useSkillTotals, toEffort, toStrengths, toNextSteps, toSelfCompare,
@@ -18,7 +19,8 @@ import {
 import { useTrials, toStairs } from './lib/useTrials';
 import { useSanmon } from './lib/useSanmon';
 import { Join } from './components/Join';
-import { Hub } from './components/Hub';
+import { Hub, type HubTab } from './components/Hub';
+import { SanmonTab } from './components/SanmonTab';
 import { Mine } from './components/Mine';
 
 /** 学年は端末に覚えさせる。1人1台なので毎回選ばせない。 */
@@ -39,7 +41,9 @@ export default function App() {
   const grades = useMemo(() => listGrades(), []);
   const [grade, setGrade] = useState(() => savedGrade(grades[0] ?? 4));
 
-  const [tab, setTab] = useState<'home' | 'mine'>('home');
+  const [tab, setTab] = useState<HubTab>('home');
+  // 番号を変えるときは先生のパスワード（なりすまし・ぬけて戻る のいたずらを防ぐ）
+  const [unlocking, setUnlocking] = useState(false);
   const { rows, loading, reload } = useProgress(student?.studentId ?? null);
   const activity = useActivity(student?.studentId ?? null);
   const due = useMemo(() => toDueItems(rows ?? []), [rows]);
@@ -61,6 +65,8 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem(GRADE_KEY, String(grade)); } catch { /* 保存できなくても動く */ }
   }, [grade]);
+  // SANMON タブは4年のときだけ
+  useEffect(() => { if (grade !== 4 && tab === 'sanmon') setTab('home'); }, [grade, tab]);
 
   if (!isConfigured) {
     return (
@@ -99,11 +105,13 @@ export default function App() {
         student={student}
         due={due}
         units={units}
-        effort={effort}
         loading={loading || activity.loading}
         onReload={() => { void reload(); void activity.reload(); void totals.reload(); void testRows.reload(); void trialRows.reload(); void sanmon.reload(); }}
-        sanmon={grade === 4 ? { status: sanmon.status, units: sanmon.units } : null}
+        sanmon={grade === 4
+          ? <SanmonTab student={student} status={sanmon.status} units={sanmon.units} onJoin={() => setShowJoin(true)} />
+          : null}
         onJoin={() => setShowJoin(true)}
+        onChangeStudent={() => setUnlocking(true)}
         tab={tab}
         onTab={setTab}
         mine={
@@ -111,6 +119,11 @@ export default function App() {
             compare={compare} trend={trend} units={ability} hard={hard} tests={tests} stairs={stairs} />
         }
       />
+      {unlocking && student && (
+        <UnlockPrompt config={portalConfig} student={student} action="ばんごうを かえるの"
+          onClose={() => setUnlocking(false)}
+          onUnlocked={() => { setUnlocking(false); clearStudent(); setStudent(null); setTab('home'); setShowJoin(true); }} />
+      )}
     </>
   );
 }

@@ -49,7 +49,7 @@ interface Props {
 
 export function Mine({ student, effort, strengths, next, compare, trend, units, hard, tests, stairs }: Props) {
   const totalMastered = strengths.reduce((s, u) => s + u.mastered, 0);
-  const nothingYet = effort.totalDays === 0 && totalMastered === 0 && stairs.climbs === 0;
+  const nothingYet = effort.totalDays === 0 && totalMastered === 0 && stairs.climbs === 0 && tests.length === 0;
 
   if (!student) {
     return (
@@ -97,7 +97,7 @@ export function Mine({ student, effort, strengths, next, compare, trend, units, 
       <Trend student={student} trend={trend} units={units} hard={hard} />
 
       {/* 本番テストの点。満点のちがう回は混ぜない */}
-      <TestTrend series={tests} />
+      <TestTrend series={tests} studentId={student?.studentId ?? null} />
 
       {/* 実力の階段。単元ごとに今の段・セーブ・頂点までの残りを、アプリと同じ見た目で */}
       <StairsCard overview={stairs} student={student} />

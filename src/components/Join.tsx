@@ -20,9 +20,13 @@ export function Join({ onDone, onSkip }: Props) {
   const [num, setNum] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 入れまちがい（＝ほかの子の きろくになる）を減らすため、送る前に1回「これで いい？」
+  const [confirming, setConfirming] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!confirming) { setError(null); setConfirming(true); return; }
+    setConfirming(false);
     setBusy(true); setError(null);
     const r = await resolveStudent(portalConfig, code, Number(num));
     setBusy(false);
@@ -41,6 +45,24 @@ export function Join({ onDone, onSkip }: Props) {
           <p className="text-sm text-slate-500 mt-1">はじめに、じぶんのことを おしえてね</p>
         </div>
 
+        {confirming ? (
+          <form onSubmit={submit} className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 text-center">
+            <p className="text-lg font-black text-slate-800">これで いい？</p>
+            <p className="text-base text-slate-700">
+              がっきゅうコード <b>{code.trim()}</b> の <b className="text-2xl text-sky-600">{num}</b> ばん
+            </p>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              まちがえると、ほかの人の きろくに なってしまうよ。あとから かえるには せんせいの パスワードが いるよ。
+            </p>
+            <button type="submit" className="w-full rounded-xl bg-sky-500 text-white font-black py-3.5 text-base hover:bg-sky-600">
+              はい、はじめる
+            </button>
+            <button type="button" onClick={() => setConfirming(false)}
+              className="w-full rounded-xl ring-1 ring-slate-200 text-slate-600 font-bold py-3 text-sm">
+              なおす
+            </button>
+          </form>
+        ) : (
         <form onSubmit={submit} className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4">
           <div>
             <label htmlFor="code" className="block text-sm font-bold text-slate-700 mb-1.5">
@@ -85,6 +107,7 @@ export function Join({ onDone, onSkip }: Props) {
             なまえは きかないよ。「なんばんの人か」だけが きろくされるよ。
           </p>
         </form>
+        )}
 
         <button onClick={onSkip}
           className="w-full mt-3 text-sm text-slate-500 underline underline-offset-4 py-2">
