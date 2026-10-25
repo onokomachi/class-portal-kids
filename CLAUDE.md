@@ -9,7 +9,7 @@
 - 番号を変える（ヘッダーの「ばんごうを かえる」）には先生のパスワード（kit の `UnlockPrompt`。サーバの `verify_unlock`。PRISM で学級ごとに変えられる）。はじめに名乗るときは「これで いい？」を1回はさむ。
 - テストの ○× は、日づけを押したときだけ読む（kit の `fetchMyTestDetail`＝サーバの `my_test_detail`。1回5KBほど）。
 - 名前は **SOL**（2026-10 先生が決めた。先生用の PRISM と対：子どもが光を出し、PRISM がそれを分けて見る）。ロゴは `public/sol-logo.jpg`（起動画面）・`sol-mark.jpg`（ヘッダー・名乗りの画面）・`apple-touch-icon.png`。
-  開くたびに PRISM と同じ起動画面（presented by onokomachi → ロゴ。`SplashScreen.tsx`）。配色はロゴの色（紺の地に水色・むらさき・ミント。`index.css`）、SANMON タブの中（`.theme-sanmon`）だけ緑と金。
+  開くたびに PRISM と同じ起動画面（presented by onokomachi → ロゴ。`SplashScreen.tsx`）。配色はロゴの色（紺の地に水色・むらさき・ミント。`index.css`）。「SOL」の字は Michroma・白（`.sol-word`。Google Fonts）、マークは ふちどりなしの正方形、SANMON タブの中（`.theme-sanmon`）だけ緑と金。
 - テストの × の問題には「アプリで『項目名』を れんしゅう」ボタン（アプリを開く。項目をじかに開く仕組みはまだ無いので項目名を出す）。
 - きょうの ふくしゅう は、サーバの次の日（間をあけて繰り返す）で選び、教科を交互にまぜて並べる（`toDueItems`・`interleaveBySubject`）。はじめの3つを先に出す。
 

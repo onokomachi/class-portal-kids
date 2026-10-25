@@ -49,6 +49,19 @@ body {
 }
 .splash-float { animation: splash-float 260ms ease-out both; }
 
+/**
+ * SOL の文字（ロゴの字に近い Michroma・白。2026-10 先生が決めた）。
+ * 字体は「S・O・L」の3文字だけを入れた 1KB のファイルを自分で持つ（public/fonts。外のサイトに読みに行かない＝学校のネットで止まらない）。
+ * Michroma は SIL Open Font License 1.1（自由に使える）。
+ */
+@font-face {
+  font-family: "Michroma";
+  src: url("/fonts/michroma-sol.woff2") format("woff2");
+  font-display: swap;
+  unicode-range: U+4C, U+4F, U+53;
+}
+.sol-word { font-family: "Michroma", system-ui, sans-serif; color: #fff; letter-spacing: 0.28em; font-weight: 400; }
+
 /** 数字は等幅で。ならんだときに桁がずれない */
 .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
 
