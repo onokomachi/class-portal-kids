@@ -51,7 +51,7 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
           <div className="flex items-center gap-2.5">
             <Logo />
             <div>
-              <h1 className="hologram font-black text-xl leading-tight tracking-[0.2em]">SOL</h1>
+              <h1 className="sol-word text-xl leading-tight">SOL</h1>
               <p className="text-[11px] text-mute">
                 {student ? `${student.joinCode}　${student.number}ばん` : 'まだ とうろく していないよ'}
               </p>
@@ -169,7 +169,7 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
 
 /** SOL のマーク（ロゴの わっかの部分。public/sol-mark.jpg） */
 function Logo() {
-  return <img src="/sol-mark.jpg" alt="SOL" width={36} height={36} className="w-9 h-9 rounded-xl ring-1 ring-sky-200 object-cover" />;
+  return <img src="/sol-mark.jpg" alt="SOL" width={36} height={36} className="w-9 h-9 object-cover" />;
 }
 
 function TabButton({ active, onClick, icon, children }: {

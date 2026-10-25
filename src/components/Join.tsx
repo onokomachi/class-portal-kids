@@ -38,8 +38,8 @@ export function Join({ onDone, onSkip }: Props) {
     <div className="min-h-screen grid place-items-center p-5">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <img src="/sol-mark.jpg" alt="" className="mx-auto w-24 h-24 rounded-3xl ring-1 ring-sky-200 mb-3 object-cover" />
-          <h1 className="text-2xl font-black text-slate-800 tracking-[0.2em]">SOL</h1>
+          <img src="/sol-mark.jpg" alt="" className="mx-auto w-24 h-24 mb-3 object-cover" />
+          <h1 className="sol-word text-2xl">SOL</h1>
           <p className="text-sm text-slate-500 mt-1">はじめに、じぶんのことを おしえてね</p>
         </div>
 
