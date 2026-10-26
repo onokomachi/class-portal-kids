@@ -11,6 +11,7 @@
 - 名前は **SOL**（2026-10 先生が決めた。先生用の PRISM と対：子どもが光を出し、PRISM がそれを分けて見る）。ロゴは `public/sol-logo.jpg`（起動画面）・`sol-mark.jpg`（ヘッダー・名乗りの画面）・`apple-touch-icon.png`。
   開くたびに PRISM と同じ起動画面（presented by onokomachi → ロゴ。`SplashScreen.tsx`）。配色はロゴの色（紺の地に水色・むらさき・ミント。`index.css`）。「SOL」の字は Michroma・白（`.sol-word`。Google Fonts）、マークは ふちどりなしの正方形、SANMON タブの中（`.theme-sanmon`）だけ緑と金。
 - テストの × の問題には「アプリで『項目名』を れんしゅう」ボタン（アプリを開く。項目をじかに開く仕組みはまだ無いので項目名を出す）。
+- **先生がまだ開いていない単元**（PRISM の SOL タブで学級ごと。kit の `fetchClosedApps`＝サーバの `my_closed_apps`）は「たんげんを えらぶ」の下に 🔒（押せない）、ふくしゅうにも出さない（`lib/useClosedApps.ts`）。アプリの中でも kit の JoinGate が止める。
 - きょうの ふくしゅう は、サーバの次の日（間をあけて繰り返す）で選び、教科を交互にまぜて並べる（`toDueItems`・`interleaveBySubject`）。はじめの3つを先に出す。
 
 ## 確かめ方

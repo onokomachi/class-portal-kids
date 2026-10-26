@@ -18,6 +18,7 @@ import {
 } from './lib/useMine';
 import { useTrials, toStairs } from './lib/useTrials';
 import { useSanmon } from './lib/useSanmon';
+import { useClosedApps } from './lib/useClosedApps';
 import { Join } from './components/Join';
 import { Hub, type HubTab } from './components/Hub';
 import { SanmonTab } from './components/SanmonTab';
@@ -46,7 +47,9 @@ export default function App() {
   const [unlocking, setUnlocking] = useState(false);
   const { rows, loading, reload } = useProgress(student?.studentId ?? null);
   const activity = useActivity(student?.studentId ?? null);
-  const due = useMemo(() => toDueItems(rows ?? []), [rows]);
+  // 先生がまだ開いていない単元（PRISM の SOL タブ）は、ふくしゅうに出さない・単元の一覧では 🔒
+  const closedApps = useClosedApps(student?.studentId ?? null);
+  const due = useMemo(() => toDueItems((rows ?? []).filter((r) => !closedApps.has(r.app_id))), [rows, closedApps]);
   const units = useMemo(() => toUnitProgress(rows ?? [], grade), [rows, grade]);
   const effort = useMemo(() => toEffort(activity.rows), [activity.rows]);
   const strengths = useMemo(() => toStrengths(rows ?? []), [rows]);
@@ -105,6 +108,7 @@ export default function App() {
         student={student}
         due={due}
         units={units}
+        closedApps={closedApps}
         loading={loading || activity.loading}
         onReload={() => { void reload(); void activity.reload(); void totals.reload(); void testRows.reload(); void trialRows.reload(); void sanmon.reload(); }}
         sanmon={grade === 4
