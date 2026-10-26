@@ -10,7 +10,7 @@
  * タブは3つ（2026-10 先生と決めた）。ホームは「各アプリへ飛ぶ」と「きょうの ふくしゅう」だけの かんたんな形。
  * SANMON（4年のゲーム）は 専用のタブにまとめる。努力・テスト・階段は「じぶんの きろく」。
  */
-import { RotateCcw, ChevronRight, RefreshCw, Home, LineChart, Star, Swords, UserCog } from 'lucide-react';
+import { RotateCcw, ChevronRight, RefreshCw, Home, LineChart, Star, Swords, UserCog, Lock } from 'lucide-react';
 import { useState } from 'react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import { CardTitle, LinkRow, SubjectTag, placeLabel } from './kidsUi';
@@ -26,6 +26,8 @@ interface Props {
   student: StudentIdentity | null;
   due: DueItem[];
   units: UnitProgress[];
+  /** 先生がまだ開いていない単元（PRISM の SOL タブ・学級ごと）。🔒 で出して押せなくする */
+  closedApps?: ReadonlySet<string>;
   loading: boolean;
   onReload: () => void;
   onJoin: () => void;
@@ -41,7 +43,7 @@ interface Props {
 
 export type HubTab = 'home' | 'sanmon' | 'mine';
 
-export function Hub({ student, due, units, loading, onReload, onJoin, onChangeStudent, tab, onTab, mine, sanmon }: Props) {
+export function Hub({ student, due, units, closedApps = new Set<string>(), loading, onReload, onJoin, onChangeStudent, tab, onTab, mine, sanmon }: Props) {
   const [moreDue, setMoreDue] = useState(false);
 
   return (
@@ -129,8 +131,19 @@ export function Hub({ student, due, units, loading, onReload, onJoin, onChangeSt
           <section>
             <CardTitle note="やった ぶんだけ ⭐が ふえるよ">たんげんを えらぶ</CardTitle>
             <div className="grid gap-2">
-              {/* 一度でもやった単元を上に。つづきから やりたい子が、いちばん先に見つけられる */}
-              {[...units].sort((a, b) => Number(b.touched > 0) - Number(a.touched > 0)).map((u) => (
+              {/* 一度でもやった単元を上に。つづきから やりたい子が、いちばん先に見つけられる。先生がまだ開いていない単元は いちばん下に 🔒 */}
+              {[...units].sort((a, b) => Number(closedApps.has(a.app.app_id)) - Number(closedApps.has(b.app.app_id))
+                || Number(b.touched > 0) - Number(a.touched > 0)).map((u) => closedApps.has(u.app.app_id) ? (
+                <div key={u.app.app_id} aria-disabled="true"
+                  className="card flex items-center gap-3 p-4 ring-1 ring-slate-100 opacity-60">
+                  <SubjectTag subject={u.app.subject} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-black text-ink text-sm truncate">{u.app.title}</span>
+                    <span className="block text-xs text-mute mt-0.5">せんせいが ひらいたら できるよ</span>
+                  </span>
+                  <Lock size={18} className="shrink-0 text-slate-400" />
+                </div>
+              ) : (
                 <a key={u.app.app_id} href={linkTo(u.app.url, student)}
                   className="tap card flex items-center gap-3 p-4 ring-1 ring-slate-100 hover:ring-sky-300">
                   <SubjectTag subject={u.app.subject} />
