@@ -13,7 +13,7 @@
     "prebuild": "npm run platform"
   },
   "dependencies": {
-    "learning-app-kit": "https://github.com/onokomachi/learning-app-kit/archive/02eea05bfb96d5b248139073c13d05663ca97a85.tar.gz",
+    "learning-app-kit": "https://github.com/onokomachi/learning-app-kit/archive/fc92254fd3c11fc5b4effd8f63f7e33dc7352a58.tar.gz",
     "lucide-react": "^0.546.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1"
