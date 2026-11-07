@@ -7,8 +7,8 @@
  * 氏名はどこにも無い。サーバにあるのは「この学級の何番か」だけ。
  */
 import { useEffect, useMemo, useState } from 'react';
-import { getStudent, clearStudent, type StudentIdentity } from 'learning-app-kit/sync';
-import { UnlockPrompt } from 'learning-app-kit/react';
+import { getStudent, clearStudent, loadPortalConfig, type StudentIdentity } from 'learning-app-kit/sync';
+import { UnlockPrompt, usePortalConfig } from 'learning-app-kit/react';
 import { listGrades } from 'learning-app-kit/catalog';
 import { isConfigured, portalConfig } from './lib/portal';
 import { useProgress, toDueItems, toUnitProgress } from './lib/useProgress';
@@ -39,6 +39,17 @@ export default function App() {
   const [student, setStudent] = useState<StudentIdentity | null>(() => getStudent());
   // 名乗っていない子には、まず入力画面を出す。ただし「あとで」で飛ばせる
   const [showJoin, setShowJoin] = useState(() => getStudent() === null);
+  // PRISM の管理タブの「ログイン必須」（portal_settings.require_join）。入っていれば「あとで」を出さず、名乗るまで先へ進めない。
+  // 読めないとき・まだ読んでいないときは前に読めた値（それも無ければ止めない）。アプリにもどったときにも読みなおす
+  const portalCfg = usePortalConfig();
+  useEffect(() => {
+    if (!isConfigured) return;
+    void loadPortalConfig(portalConfig);
+    const onVis = () => { if (!document.hidden) void loadPortalConfig(portalConfig); };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
+  const mustJoin = !!portalCfg?.requireJoin && !student;
   const grades = useMemo(() => listGrades(), []);
   const [grade, setGrade] = useState(() => savedGrade(grades[0] ?? 4));
 
@@ -82,11 +93,11 @@ export default function App() {
     );
   }
 
-  if (showJoin) {
+  if (showJoin || mustJoin) {
     return (
       <Join
         onDone={(s) => { setStudent(s); setShowJoin(false); }}
-        onSkip={() => setShowJoin(false)}
+        onSkip={mustJoin ? undefined : () => setShowJoin(false)}
       />
     );
   }

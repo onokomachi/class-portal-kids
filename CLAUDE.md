@@ -12,6 +12,7 @@
   開くたびに PRISM と同じ起動画面（presented by onokomachi → ロゴ。`SplashScreen.tsx`）。配色はロゴの色（紺の地に水色・むらさき・ミント。`index.css`）。「SOL」の字は Michroma・白（`.sol-word`。Google Fonts）、マークは ふちどりなしの正方形、SANMON タブの中（`.theme-sanmon`）だけ緑と金。
 - テストの × の問題には「アプリで『項目名』を れんしゅう」ボタン（アプリを開く。項目をじかに開く仕組みはまだ無いので項目名を出す）。
 - **先生がまだ開いていない単元**（PRISM の SOL タブで学級ごと。kit の `fetchClosedApps`＝サーバの `my_closed_apps`）は「たんげんを えらぶ」の下に 🔒（押せない）、ふくしゅうにも出さない（`lib/useClosedApps.ts`）。アプリの中でも kit の JoinGate が止める。
+- **ログイン必須**（2026-11-07。PRISM の管理タブのスイッチ＝`portal_settings.require_join`。kit の `loadPortalConfig`・`usePortalConfig`）：入っているときは名乗りの画面に「あとで入れる」を出さず、名乗るまでホームに進めない（`App.tsx` の `mustJoin`）。体験の入口（`#trial`）は名乗りなしのまま。
 - **体験の入口**（2026-11-07。`components/TrialHub.tsx`）：`https://class-portal-kids.vercel.app/#trial`。名乗りは聞かず、PRISM の管理タブで「体験に出す」にしたアプリ（サーバの `trial_apps`）を学年ごとに並べ、`#trial` 付きで開く。
   体験中のタブは kit の `isTrial()`（タブの中だけ覚える）。「たいけんを おわる」で ふつうの SOL にもどる。
 - きょうの ふくしゅう は、サーバの次の日（間をあけて繰り返す）で選び、教科を交互にまぜて並べる（`toDueItems`・`interleaveBySubject`）。はじめの3つを先に出す。
