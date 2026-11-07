@@ -5,7 +5,7 @@
  * 入れなくても各アプリへは行けるようにしてある——学級コードを忘れた子が
  * 学習そのものをあきらめることにならないように。
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { resolveStudent, type StudentIdentity } from 'learning-app-kit/sync';
 import { Loader2 } from 'lucide-react';
 import { portalConfig } from '../lib/portal';
@@ -24,6 +24,12 @@ export function Join({ onDone, onSkip }: Props) {
   // 入れまちがい（＝ほかの子の きろくになる）を減らすため、送る前に1回「これで いい？」
   const [confirming, setConfirming] = useState(false);
 
+  // 動画のロゴを上（横長の画面では左）に寄せる（index.css の .on-join）。このあいだ「SOL」の文字は動画のロゴの円の中に入る
+  useEffect(() => {
+    document.body.classList.add('on-join');
+    return () => document.body.classList.remove('on-join');
+  }, []);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!confirming) { setError(null); setConfirming(true); return; }
@@ -36,88 +42,54 @@ export function Join({ onDone, onSkip }: Props) {
   };
 
   return (
-    <div className="min-h-screen grid place-items-center p-5">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-6">
-          <img src="/sol-mark.jpg" alt="" className="mx-auto w-24 h-24 mb-3 object-cover" />
-          <h1 className="sol-word text-2xl">SOL</h1>
-          <p className="text-sm text-slate-500 mt-1">はじめに、じぶんのことを おしえてね</p>
-        </div>
+    <div className="join-page">
+      {/* 動画のロゴの円の中の「SOL」。動画と同じ余白で動くので、いつも円の中に入る */}
+      <div className="join-hero" aria-hidden><h1 className="sol-title">SOL</h1></div>
 
-        {confirming ? (
-          <form onSubmit={submit} className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 text-center">
-            <p className="text-lg font-black text-slate-800">これで いい？</p>
-            <p className="text-base text-slate-700">
-              がっきゅうコード <b>{code.trim()}</b> の <b className="text-2xl text-sky-600">{num}</b> ばん
-            </p>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              まちがえると、ほかの人の きろくに なってしまうよ。あとから かえるには せんせいの パスワードが いるよ。
-            </p>
-            <button type="submit" className="w-full rounded-xl bg-sky-500 text-white font-black py-3.5 text-base hover:bg-sky-600">
-              はい、はじめる
-            </button>
-            <button type="button" onClick={() => setConfirming(false)}
-              className="w-full rounded-xl ring-1 ring-slate-200 text-slate-600 font-bold py-3 text-sm">
-              なおす
-            </button>
-          </form>
-        ) : (
-        <form onSubmit={submit} className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4">
-          <div>
-            <label htmlFor="code" className="block text-sm font-bold text-slate-700 mb-1.5">
-              がっきゅうコード
-            </label>
-            <input
-              id="code" value={code} onChange={(e) => setCode(e.target.value)} required
-              placeholder="せんせいから きいてね"
-              className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base
-                         focus:outline-none focus:border-sky-400"
-            />
-          </div>
-          <div>
-            <label htmlFor="num" className="block text-sm font-bold text-slate-700 mb-1.5">
-              しゅっせき番号
-            </label>
-            <input
-              id="num" type="number" inputMode="numeric" min={1} max={100} required
-              value={num} onChange={(e) => setNum(e.target.value)} placeholder="12"
-              className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base
-                         focus:outline-none focus:border-sky-400"
-            />
-          </div>
+      <div className="join-wrap">
+        <div className="join-panel">
+          {confirming ? (
+            <form onSubmit={submit} style={{ textAlign: 'center' }}>
+              <p className="join-lead" style={{ fontSize: 15, color: '#eaf6ff' }}>これで いい？</p>
+              <p style={{ margin: '0 0 6px', fontSize: 12, color: '#8fb4d9', letterSpacing: '0.16em' }}>がっきゅうコード</p>
+              <p className="join-big sol-glow" style={{ margin: '0 0 14px', fontSize: 26, color: '#fff', letterSpacing: '0.12em', wordBreak: 'break-all' }}>{code.trim()}</p>
+              <p style={{ margin: '0 0 4px', fontSize: 12, color: '#8fb4d9', letterSpacing: '0.16em' }}>しゅっせき番号</p>
+              <p className="join-big sol-glow" style={{ margin: 0, fontSize: 48, lineHeight: 1.1, color: '#fff' }}>{num}</p>
+              <p className="join-note" style={{ marginBottom: 18 }}>
+                まちがえると、ほかの人の きろくに なってしまうよ。あとから かえるには せんせいの パスワードが いるよ。
+              </p>
+              <button type="submit" className="join-go">はい、はじめる</button>
+              <button type="button" className="join-sub" onClick={() => setConfirming(false)}>なおす</button>
+            </form>
+          ) : (
+            <form onSubmit={submit}>
+              <p className="join-lead">はじめに、じぶんのことを おしえてね</p>
+              <div style={{ marginBottom: 12 }}>
+                <label htmlFor="code" className="join-label">がっきゅうコード</label>
+                <input id="code" className="join-input" value={code} onChange={(e) => setCode(e.target.value)} required
+                  placeholder="せんせいから きいてね" autoComplete="off" />
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label htmlFor="num" className="join-label">しゅっせき番号</label>
+                <input id="num" className="join-input" type="number" inputMode="numeric" min={1} max={100} required
+                  value={num} onChange={(e) => setNum(e.target.value)} placeholder="12" />
+              </div>
 
-          <button
-            type="submit" disabled={busy}
-            className="w-full rounded-xl bg-sky-500 text-white font-black py-3.5 text-base
-                       flex items-center justify-center gap-2
-                       hover:bg-sky-600 active:scale-[0.99] disabled:opacity-50 transition"
-          >
-            {busy && <Loader2 size={18} className="animate-spin" />}
-            はじめる
-          </button>
+              <button type="submit" className="join-go" disabled={busy}>
+                {busy && <Loader2 size={18} className="animate-spin" />}はじめる
+              </button>
 
-          {error && (
-            <p className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
-              {error}
-            </p>
+              {error && <p className="join-err">{error}</p>}
+
+              {onSkip ? (
+                <button type="button" className="join-skip" onClick={onSkip}>あとで入れる（このまま つかう）</button>
+              ) : (
+                <p className="join-note">SOL は がっきゅうコードと しゅっせき番号を 入れて つかうよ。わからないときは せんせいに きいてね。</p>
+              )}
+              <p className="join-note" style={{ marginTop: onSkip ? 6 : 8 }}>なまえは きかないよ。「なんばんの人か」だけが きろくされるよ。</p>
+            </form>
           )}
-
-          <p className="text-xs text-slate-400 leading-relaxed pt-1">
-            なまえは きかないよ。「なんばんの人か」だけが きろくされるよ。
-          </p>
-        </form>
-        )}
-
-        {onSkip ? (
-          <button onClick={onSkip}
-            className="w-full mt-3 text-sm text-slate-500 underline underline-offset-4 py-2">
-            あとで入れる（このまま つかう）
-          </button>
-        ) : (
-          <p className="mt-3 text-xs text-slate-500 text-center leading-relaxed">
-            SOL は がっきゅうコードと しゅっせき番号を 入れて つかうよ。わからないときは せんせいに きいてね。
-          </p>
-        )}
+        </div>
       </div>
     </div>
   );

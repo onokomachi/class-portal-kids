@@ -1,5 +1,5 @@
 /**
- * SOL の背景（ロゴが回る10秒ループの動画。2026-11-07 先生が用意した動画）。
+ * SOL の背景（ロゴの輪が回る7秒ループの動画。2026-11-07 先生が用意した2本目の動画。中央を切り出して大きく・最後と最初をクロスフェードでつないである）。
  *
  * - 画面全体の後ろに固定し、ロゴを切らずに中央に置く（object-fit: contain）
  * - 動画は黒地なので、`mix-blend-mode: screen`（黒は何も足さない）で今の背景の上に重ねる。
@@ -37,15 +37,15 @@ export function SolBackground() {
   }, [reduce, failed]);
 
   if (failed) return null;
-  const poster = media('/videos/sol/poster.jpg');
+  const poster = media('/videos/sol/poster2.jpg');
   return (
     <div className="sol-bg" aria-hidden>
       {reduce ? (
         <img src={poster} alt="" onError={() => setFailed(true)} />
       ) : (
         <video autoPlay muted loop playsInline preload="auto" poster={poster} onError={() => setFailed(true)}>
-          <source src={media('/videos/sol/bg.mp4')} type="video/mp4" />
-          <source src={media('/videos/sol/bg.webm')} type="video/webm" />
+          <source src={media('/videos/sol/bg2.mp4')} type="video/mp4" />
+          <source src={media('/videos/sol/bg2.webm')} type="video/webm" />
         </video>
       )}
     </div>
