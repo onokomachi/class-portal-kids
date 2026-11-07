@@ -43,6 +43,17 @@ body {
   min-height: 100vh;
 }
 
+/**
+ * 背景の動画（SolBackground。2026-11-07）。画面全体の後ろ・中央・ロゴを切らない。黒地は screen で消える。
+ * body の背景は html に背景色があるため body の箱の中に描かれる。z-index を負にすると body の背景の下に隠れるので、
+ * 動画は z-index:0・中身（#root）は z-index:1 にして、動画を中身の後ろ・body の背景の前に置く。
+ */
+.sol-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: grid; place-items: center; mix-blend-mode: screen; }
+.sol-bg video, .sol-bg img { width: 100%; height: 100%; object-fit: contain; }
+#root { position: relative; z-index: 1; }
+/* SANMON タブの中は緑と金の別の世界。動画は出さない */
+.in-sanmon .sol-bg { display: none; }
+
 @keyframes splash-float {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }

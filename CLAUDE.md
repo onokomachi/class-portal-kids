@@ -15,6 +15,9 @@
 - **ログイン必須**（2026-11-07。PRISM の管理タブのスイッチ＝`portal_settings.require_join`。kit の `loadPortalConfig`・`usePortalConfig`）：入っているときは名乗りの画面に「あとで入れる」を出さず、名乗るまでホームに進めない（`App.tsx` の `mustJoin`）。体験の入口（`#trial`）は名乗りなしのまま。
 - **体験の入口**（2026-11-07。`components/TrialHub.tsx`）：`https://class-portal-kids.vercel.app/#trial`。名乗りは聞かず、PRISM の管理タブで「体験に出す」にしたアプリ（サーバの `trial_apps`）を学年ごとに並べ、`#trial` 付きで開く。
   体験中のタブは kit の `isTrial()`（タブの中だけ覚える）。「たいけんを おわる」で ふつうの SOL にもどる。
+- **背景の動画**（2026-11-07。`components/SolBackground.tsx`）：ロゴが回る10秒ループ（音なし・約0.26MB）を、全画面の後ろの中央に（ロゴを切らない）。`mix-blend-mode: screen` で黒地は消えて今の背景に重なる。
+  動画は共通の置き場 `learning-media`（`videos/sol/`。`src/lib/media.ts`）。SOL の `public/` に入れない（直すたびに保存されて Vercel の容量を使う）。置き場のファイルは上書きしない（変えるときは新しい名前で足す）。
+  「動きを減らす」・データ節約のときは先頭の1枚だけ。読めないときは何も出さない。SANMON タブの中は出さない（`Hub` が body に `in-sanmon` を付ける）。
 - きょうの ふくしゅう は、サーバの次の日（間をあけて繰り返す）で選び、教科を交互にまぜて並べる（`toDueItems`・`interleaveBySubject`）。はじめの3つを先に出す。
 
 ## 確かめ方
