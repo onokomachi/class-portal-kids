@@ -54,12 +54,12 @@ export function Hub({ student, due, units, closedApps = new Set<string>(), loadi
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-slate-100 shadow-[0_8px_24px_-16px_rgba(139,92,246,0.7)]">
+      <header className="sol-header">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Logo />
             <div>
-              <h1 className="sol-word text-xl leading-tight">SOL</h1>
+              <h1 className="sol-word sol-glow text-xl leading-tight">SOL</h1>
               <p className="text-[11px] text-mute">
                 {student ? `${student.joinCode}　${student.number}ばん` : 'まだ とうろく していないよ'}
               </p>

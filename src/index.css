@@ -48,11 +48,114 @@ body {
  * body の背景は html に背景色があるため body の箱の中に描かれる。z-index を負にすると body の背景の下に隠れるので、
  * 動画は z-index:0・中身（#root）は z-index:1 にして、動画を中身の後ろ・body の背景の前に置く。
  */
-.sol-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: grid; place-items: center; mix-blend-mode: screen; }
-.sol-bg video, .sol-bg img { width: 100%; height: 100%; object-fit: contain; }
+.sol-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; mix-blend-mode: screen;
+  box-sizing: border-box; transition: padding .8s cubic-bezier(.2, .7, .2, 1); }
+.sol-bg video, .sol-bg img {
+  width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: contain;
+  /* 動画の四角いふちが見えないように、ふちを丸くぼかす（ロゴは動画の1辺の約8割までに収まっている） */
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 82%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 82%, transparent 100%);
+}
 #root { position: relative; z-index: 1; }
 /* SANMON タブの中は緑と金の別の世界。動画は出さない */
 .in-sanmon .sol-bg { display: none; }
+
+/**
+ * トップ画面（名乗りの画面。Join.tsx）。動画のロゴを上（横長の画面では左）に寄せて大きく見せ、入力欄を下（右）に置く。
+ * 動画の位置（.sol-bg）と「SOL」の文字（.join-hero）は同じ余白で動かすので、文字は いつもロゴの円の中に入る。
+ * ロゴの円は動画の幅の約42％。文字の大きさは 動画の1辺（--join-s）の約11.5％。
+ */
+.on-join { --join-s: min(100vw, 56vh); }
+.on-join .sol-bg, .join-hero { padding-bottom: 44vh; }
+@media (min-width: 900px) and (orientation: landscape) {
+  .on-join { --join-s: min(50vw, 100vh); }
+  .on-join .sol-bg, .join-hero { padding-bottom: 0; padding-right: 50vw; }
+}
+.join-page { position: relative; min-height: 100vh; min-height: 100dvh; }
+.join-hero { position: fixed; inset: 0; box-sizing: border-box; display: grid; place-items: center; pointer-events: none; }
+.sol-title {
+  margin: 0; font-family: "Michroma", system-ui, sans-serif; font-weight: 400; color: #fff;
+  font-size: calc(var(--join-s, 80vw) * 0.102); line-height: 1;
+  letter-spacing: 0.3em; padding-left: 0.3em; /* 右の空きを左にも足して、文字の中心をロゴの中心に合わせる */
+  text-shadow: 0 0 12px rgba(103, 232, 249, 0.95), 0 0 34px rgba(103, 232, 249, 0.55), 0 0 70px rgba(168, 85, 247, 0.6);
+  animation: sol-breathe 4.2s ease-in-out infinite;
+}
+@keyframes sol-breathe {
+  0%, 100% { text-shadow: 0 0 12px rgba(103, 232, 249, 0.85), 0 0 30px rgba(103, 232, 249, 0.45), 0 0 60px rgba(168, 85, 247, 0.5); }
+  50% { text-shadow: 0 0 16px rgba(103, 232, 249, 1), 0 0 42px rgba(103, 232, 249, 0.7), 0 0 90px rgba(168, 85, 247, 0.75); }
+}
+.join-wrap { position: relative; z-index: 1; box-sizing: border-box; min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: flex-end; justify-content: center; padding: 48vh 20px 20px; }
+@media (min-width: 900px) and (orientation: landscape) {
+  .join-wrap { align-items: center; padding: 28px 28px 28px calc(50vw + 28px); }
+}
+.join-panel {
+  width: 100%; max-width: 24rem; box-sizing: border-box; padding: 22px 22px 16px; border-radius: 28px; position: relative;
+  background: linear-gradient(165deg, rgba(14, 28, 62, 0.62), rgba(5, 10, 30, 0.72));
+  -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.26), 0 0 44px -12px rgba(139, 92, 246, 0.55), 0 30px 60px -30px rgba(0, 0, 0, 0.95);
+}
+/* 上のふちに、ロゴと同じ 水色→むらさき→ピンク の細い光 */
+.join-panel::before {
+  content: ""; position: absolute; top: 0; left: 22px; right: 22px; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #67e8f9 20%, #a78bfa 60%, #f0abfc 85%, transparent);
+  filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.9));
+}
+.join-lead { margin: 0 0 14px; text-align: center; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #b9c8e6; }
+.join-label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.16em; color: #8fb4d9; }
+.join-input {
+  width: 100%; box-sizing: border-box; padding: 12px 16px; border-radius: 14px; font-size: 18px; font-weight: 700; color: #eaf6ff;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(103, 232, 249, 0.24); outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.join-input::placeholder { color: rgba(169, 182, 214, 0.5); font-weight: 500; font-size: 15px; }
+.join-input:focus { border-color: #67e8f9; background: rgba(34, 211, 238, 0.08); box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.14), 0 0 26px -6px rgba(34, 211, 238, 0.7); }
+.join-input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.join-input::-webkit-outer-spin-button, .join-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.join-go {
+  position: relative; overflow: hidden; width: 100%; padding: 14px 0; border: 0; border-radius: 14px; cursor: pointer;
+  font-size: 17px; font-weight: 900; letter-spacing: 0.3em; text-indent: 0.3em; color: #fff;
+  background: linear-gradient(90deg, #06b6d4, #6366f1 55%, #a855f7);
+  box-shadow: 0 0 28px -4px rgba(99, 102, 241, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform .12s ease, box-shadow .2s ease, opacity .2s ease;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.join-go:hover { box-shadow: 0 0 38px -2px rgba(139, 92, 246, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+.join-go:active { transform: scale(0.985); }
+.join-go:disabled { opacity: 0.55; }
+/* ボタンの上を、ときどき光が走る */
+.join-go::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 38%; left: -50%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.32), transparent);
+  animation: join-sheen 4.5s ease-in-out infinite;
+}
+@keyframes join-sheen { 0%, 60% { left: -50%; } 100% { left: 130%; } }
+.join-sub {
+  width: 100%; margin-top: 10px; padding: 12px 0; border-radius: 14px; cursor: pointer; font-size: 13px; font-weight: 800;
+  color: #b9c8e6; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.join-skip { display: block; width: 100%; margin-top: 10px; padding: 6px 0; font-size: 13px; color: #8fa4cb; text-decoration: underline; text-underline-offset: 5px; background: none; border: 0; cursor: pointer; }
+.join-note { margin: 10px 0 0; font-size: 11px; line-height: 1.7; text-align: center; color: #8296bd; }
+.join-err { margin-top: 12px; padding: 9px 12px; border-radius: 12px; font-size: 13px; color: #fecdd3; background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(251, 113, 133, 0.4); }
+.join-big { font-family: "Michroma", system-ui, sans-serif; font-weight: 400; }
+@media (prefers-reduced-motion: reduce) {
+  .sol-title { animation: none; }
+  .join-go::after { animation: none; display: none; }
+  .sol-bg { transition: none; }
+}
+
+/* ホーム・体験の入口の上の帯（すりガラス＋ロゴと同じ光のふち） */
+.sol-header {
+  position: sticky; top: 0; z-index: 20;
+  background: linear-gradient(180deg, rgba(4, 9, 28, 0.78), rgba(3, 7, 22, 0.62));
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 10px 28px -18px rgba(139, 92, 246, 0.75);
+}
+.sol-header::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.55), rgba(167, 139, 250, 0.55), transparent);
+}
+.sol-glow { text-shadow: 0 0 10px rgba(103, 232, 249, 0.8), 0 0 24px rgba(168, 85, 247, 0.45); }
 
 @keyframes splash-float {
   from { opacity: 0; transform: translateY(8px); }

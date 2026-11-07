@@ -35,12 +35,12 @@ export function TrialHub() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-slate-100 shadow-[0_8px_24px_-16px_rgba(139,92,246,0.7)]">
+      <header className="sol-header">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <img src="/sol-mark.jpg" alt="SOL" width={36} height={36} className="w-9 h-9 object-cover" />
             <div>
-              <h1 className="sol-word text-xl leading-tight">SOL</h1>
+              <h1 className="sol-word sol-glow text-xl leading-tight">SOL</h1>
               <p className="text-[11px] text-mute">たいけんばん</p>
             </div>
           </div>
@@ -53,7 +53,7 @@ export function TrialHub() {
 
       <main className="max-w-2xl mx-auto px-5 py-6 space-y-6">
         <section className="card ring-1 ring-amber-100 p-5">
-          <h2 className="flex items-center gap-1.5 font-black text-ink"><Sparkles size={18} className="text-amber-500" />たいけんしてみよう</h2>
+          <h2 className="flex items-center gap-1.5 font-black hologram text-lg"><Sparkles size={18} className="text-amber-400" />たいけんしてみよう</h2>
           <p className="text-sm text-slate-600 mt-2 leading-relaxed">
             がっきゅうコードが なくても ためせるよ。たいけんでは きろくは のこらないし、つかえない ところも あるよ。
           </p>
