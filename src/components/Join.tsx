@@ -12,7 +12,8 @@ import { portalConfig } from '../lib/portal';
 
 interface Props {
   onDone: (s: StudentIdentity) => void;
-  onSkip: () => void;
+  /** 「あとで入れる」。PRISM の「ログイン必須」が入っているときは渡さない（ボタンを出さない） */
+  onSkip?: () => void;
 }
 
 export function Join({ onDone, onSkip }: Props) {
@@ -107,10 +108,16 @@ export function Join({ onDone, onSkip }: Props) {
         </form>
         )}
 
-        <button onClick={onSkip}
-          className="w-full mt-3 text-sm text-slate-500 underline underline-offset-4 py-2">
-          あとで入れる（このまま つかう）
-        </button>
+        {onSkip ? (
+          <button onClick={onSkip}
+            className="w-full mt-3 text-sm text-slate-500 underline underline-offset-4 py-2">
+            あとで入れる（このまま つかう）
+          </button>
+        ) : (
+          <p className="mt-3 text-xs text-slate-500 text-center leading-relaxed">
+            SOL は がっきゅうコードと しゅっせき番号を 入れて つかうよ。わからないときは せんせいに きいてね。
+          </p>
+        )}
       </div>
     </div>
   );
