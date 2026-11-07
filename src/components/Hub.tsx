@@ -11,7 +11,7 @@
  * SANMON（4年のゲーム）は 専用のタブにまとめる。努力・テスト・階段は「じぶんの きろく」。
  */
 import { RotateCcw, ChevronRight, RefreshCw, Home, LineChart, Star, Swords, UserCog, Lock } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import { CardTitle, LinkRow, SubjectTag, placeLabel } from './kidsUi';
 import type { DueItem, UnitProgress } from '../lib/useProgress';
@@ -45,6 +45,12 @@ export type HubTab = 'home' | 'sanmon' | 'mine';
 
 export function Hub({ student, due, units, closedApps = new Set<string>(), loading, onReload, onJoin, onChangeStudent, tab, onTab, mine, sanmon }: Props) {
   const [moreDue, setMoreDue] = useState(false);
+  // SANMON タブの中は緑と金の別の世界なので、背景の動画（SolBackground）は出さない（index.css の .in-sanmon .sol-bg）
+  useEffect(() => {
+    const on = tab === 'sanmon' && !!sanmon;
+    document.body.classList.toggle('in-sanmon', on);
+    return () => document.body.classList.remove('in-sanmon');
+  }, [tab, sanmon]);
 
   return (
     <div className="min-h-screen">
