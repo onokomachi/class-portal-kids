@@ -14,6 +14,7 @@
 - **先生がまだ開いていない単元**（PRISM の SOL タブで学級ごと。kit の `fetchClosedApps`＝サーバの `my_closed_apps`）は「たんげんを えらぶ」の下に 🔒（押せない）、ふくしゅうにも出さない（`lib/useClosedApps.ts`）。アプリの中でも kit の JoinGate が止める。
 - **ログイン必須**（2026-11-07。PRISM の管理タブのスイッチ＝`portal_settings.require_join`。kit の `loadPortalConfig`・`usePortalConfig`）：入っているときは名乗りの画面に「あとで入れる」を出さず、名乗るまでホームに進めない（`App.tsx` の `mustJoin`）。体験の入口（`#trial`）は名乗りなしのまま。
 - **体験の入口**（2026-11-07。`components/TrialHub.tsx`）：`https://class-portal-kids.vercel.app/#trial`。名乗りは聞かず、PRISM の管理タブで「体験に出す」にしたアプリ（サーバの `trial_apps`）を学年ごとに並べ、`#trial` 付きで開く。
+  並びはサーバの `trial_apps`（SANMON → 学年 → 算数・国語・外国語活動 → 年間の順＝`apps.year_order`。2026-11-08）。SANMON だけはいちばん上に、SANMON タブと同じ緑と金の大きなカード（`.theme-sanmon`）で出す。
   体験中のタブは kit の `isTrial()`（タブの中だけ覚える）。「たいけんを おわる」で ふつうの SOL にもどる。
 - **背景の動画**（2026-11-07。`components/SolBackground.tsx`）：ロゴの輪が回る動画（音なし・約1.0MB。`videos/sol/bg4.*`。中央を切り出して大きく、前→逆の「振り子」の19秒ループ。折り返しで速さがゼロまで落ちてから逆に加速し、そこで少し明るく息をする。クロスフェード版・単純な往復版は、折り返しの切り替わりが目立つため やめた。作り方：元の8秒をコマの混ぜ合わせで時間をなめらかに進める）を、全画面の後ろの中央に（ロゴを切らない）。`mix-blend-mode: screen` で黒地は消えて今の背景に重なる。
   動画は共通の置き場 `learning-media`（`videos/sol/`。`src/lib/media.ts`）。SOL の `public/` に入れない（直すたびに保存されて Vercel の容量を使う）。置き場のファイルは上書きしない（変えるときは新しい名前で足す）。

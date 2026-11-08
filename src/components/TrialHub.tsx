@@ -4,9 +4,11 @@
  * 学級コードを持っていない人（紹介したい先生・保護者・ほかの学級）に配るリンク。
  * 名乗りは聞かない。PRISM の管理タブで「体験に出す」にしたアプリだけを学年ごとに並べ、
  * 押すとそのアプリを #trial 付きで開く（アプリの中は体験版：答えは送らない・使える画面は PRISM の設定）。
+ * 並びはサーバの trial_apps（SANMON → 学年 → 算数・国語・外国語活動 → 年間の順。apps.year_order）。
+ * SANMON だけは いちばん上に、SANMON タブと同じ 緑と金の大きなカードで出す（2026-11-08 先生と決めた）。
  */
 import { useEffect, useMemo, useState } from 'react';
-import { ExternalLink, Loader2, Sparkles } from 'lucide-react';
+import { ChevronRight, ExternalLink, Loader2, Sparkles, Swords } from 'lucide-react';
 import { fetchTrialApps, buildTrialUrl, endTrial, type TrialAppEntry } from 'learning-app-kit/sync';
 import { portalConfig } from '../lib/portal';
 import { CardTitle, SubjectTag } from './kidsUi';
@@ -24,9 +26,11 @@ export function TrialHub() {
     return () => { alive = false; };
   }, []);
 
+  const sanmon = apps?.find((a) => a.appId === 'sanmon') ?? null;
   const byGrade = useMemo(() => {
     const m = new Map<number, TrialAppEntry[]>();
     for (const a of apps ?? []) {
+      if (a.appId === 'sanmon') continue;
       const g = a.grade ?? 0;
       m.set(g, [...(m.get(g) ?? []), a]);
     }
@@ -62,6 +66,24 @@ export function TrialHub() {
         {!apps && !failed && <div className="py-10 grid place-items-center"><Loader2 className="animate-spin text-mute" /></div>}
         {failed && <p className="text-sm text-rose-600 text-center">よみこめませんでした。すこし たってから もういちど ひらいてね。</p>}
         {apps && apps.length === 0 && <p className="text-sm text-mute text-center">いまは たいけんできる アプリが ないよ。</p>}
+
+        {sanmon && (
+          <div className="theme-sanmon">
+            <a href={buildTrialUrl(sanmon.url)}
+              className="tap block hud rounded-3xl p-6 relative overflow-hidden" aria-label="SANMON:04 を たいけんする">
+              <div className="absolute -right-12 -top-12 w-56 h-56 rounded-full bg-emerald-500/25 blur-3xl pointer-events-none" />
+              <div className="absolute -left-10 -bottom-14 w-48 h-48 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
+              <p className="text-[11px] font-black tracking-[0.3em] text-emerald-300/80">GAME ・ 4ねん さんすう</p>
+              <p className="hologram text-4xl sm:text-5xl font-black italic leading-tight mt-1">SANMON:04</p>
+              <p className="text-xs text-emerald-100/80 mt-2 leading-relaxed">
+                モンスターと いっしょに 4ねんの さんすうを ぼうけんしよう。もんだいに せいかいすると たたかえるよ。
+              </p>
+              <span className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 font-black text-lg bg-gradient-to-r from-emerald-500 to-amber-400 text-black shadow-[0_0_24px_rgba(52,211,153,0.55)]">
+                <Swords size={22} /> <span className="whitespace-nowrap">たいけんする</span> <ChevronRight size={22} />
+              </span>
+            </a>
+          </div>
+        )}
 
         {byGrade.map(([g, list]) => (
           <section key={g}>
