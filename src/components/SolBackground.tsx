@@ -1,5 +1,6 @@
 /**
- * SOL の背景（ロゴの輪が回る動画。2026-11-07 先生が用意した2本目の動画。中央を切り出して大きく、前に流したあと逆に流す往復（約16秒）にして、ループの区切れ目をなくしてある）。
+ * SOL の背景（ロゴの輪が回る動画。2026-11-07 先生が用意した2本目の動画。中央を切り出して大きく、前→逆の「振り子」（19秒）にしてある。
+ *   折り返しで速さがゼロまで落ちてから逆に加速し、そこでロゴが少し明るく息をする。ループの区切れ目も折り返しの切り替わりも目立たない）。
  *
  * - 画面全体の後ろに固定し、ロゴを切らずに中央に置く（object-fit: contain）
  * - 動画は黒地なので、`mix-blend-mode: screen`（黒は何も足さない）で今の背景の上に重ねる。
@@ -37,15 +38,15 @@ export function SolBackground() {
   }, [reduce, failed]);
 
   if (failed) return null;
-  const poster = media('/videos/sol/poster3.jpg');
+  const poster = media('/videos/sol/poster4.jpg');
   return (
     <div className="sol-bg" aria-hidden>
       {reduce ? (
         <img src={poster} alt="" onError={() => setFailed(true)} />
       ) : (
         <video autoPlay muted loop playsInline preload="auto" poster={poster} onError={() => setFailed(true)}>
-          <source src={media('/videos/sol/bg3.mp4')} type="video/mp4" />
-          <source src={media('/videos/sol/bg3.webm')} type="video/webm" />
+          <source src={media('/videos/sol/bg4.mp4')} type="video/mp4" />
+          <source src={media('/videos/sol/bg4.webm')} type="video/webm" />
         </video>
       )}
     </div>
