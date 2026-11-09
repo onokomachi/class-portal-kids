@@ -56,7 +56,7 @@ export function SanmonSection({ student, status, units, onJoin }: {
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
               <Zap size={16} className="text-amber-300 shrink-0" />
-              <span className="text-xs font-black text-amber-200 shrink-0">スタミナ</span>
+              <span className="text-xs font-black text-amber-200 shrink-0">共通スタミナ</span>
               <span className="flex-1 h-3 rounded-full bg-black/60 overflow-hidden ring-1 ring-amber-400/40">
                 <span className="block h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_12px_rgba(251,191,36,0.7)]" style={{ width: `${pct}%` }} />
               </span>
