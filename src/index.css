@@ -57,6 +57,11 @@ body {
   mask-image: radial-gradient(circle closest-side, #000 82%, transparent 100%);
 }
 #root { position: relative; z-index: 1; }
+/* ホーム・体験の入口：動画のロゴの円の中に「SOL」（カードの後ろ。名乗りの画面と SANMON タブでは出さない） */
+.sol-center { position: fixed; inset: 0; z-index: 0; pointer-events: none; box-sizing: border-box; display: grid; place-items: center;
+  --join-s: min(100vw, 100vh); transition: padding .8s cubic-bezier(.2, .7, .2, 1), opacity .6s ease; }
+.on-join .sol-center { opacity: 0; }
+.in-sanmon .sol-center { display: none; }
 /* SANMON タブの中は緑と金の別の世界。動画は出さない */
 .in-sanmon .sol-bg { display: none; }
 
@@ -66,10 +71,10 @@ body {
  * ロゴの円は動画の幅の約42％。文字の大きさは 動画の1辺（--join-s）の約11.5％。
  */
 .on-join { --join-s: min(100vw, 56vh); }
-.on-join .sol-bg, .join-hero { padding-bottom: 44vh; }
+.on-join .sol-bg, .on-join .sol-center, .join-hero { padding-bottom: 44vh; }
 @media (min-width: 900px) and (orientation: landscape) {
   .on-join { --join-s: min(50vw, 100vh); }
-  .on-join .sol-bg, .join-hero { padding-bottom: 0; padding-right: 50vw; }
+  .on-join .sol-bg, .on-join .sol-center, .join-hero { padding-bottom: 0; padding-right: 50vw; }
 }
 .join-page { position: relative; min-height: 100vh; min-height: 100dvh; }
 .join-hero { position: fixed; inset: 0; box-sizing: border-box; display: grid; place-items: center; pointer-events: none; }
@@ -141,7 +146,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .sol-title { animation: none; }
   .join-go::after { animation: none; display: none; }
-  .sol-bg { transition: none; }
+  .sol-bg, .sol-center { transition: none; }
 }
 
 /* ホーム・体験の入口の上の帯（すりガラス＋ロゴと同じ光のふち） */
