@@ -7,7 +7,8 @@
  *   画面の縦横の比がちがっても、動画のふちが四角く見えない
  * - 音なし（muted）・ループ・playsInline。置き場は共通の learning-media（src/lib/media.ts）
  * - 「動きを減らす」設定・データ節約のときは、動かさずに先頭の1枚だけ出す
- * - 読めなかったとき（ネットが切れている など）は何も出さない（今までの背景のまま）
+ * - 読めなかったとき（ネットが切れている など）は動画を出さない（今までの背景のまま）
+ * - 動画のロゴの円の中に「SOL」の文字（.sol-center。ホーム・体験の入口。カードの後ろ）
  * - SANMON タブの中は緑と金の別の世界なので出さない（Hub が body に in-sanmon を付ける。index.css の .sol-bg）
  */
 import { useEffect, useState } from 'react';
@@ -37,18 +38,24 @@ export function SolBackground() {
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [reduce, failed]);
 
-  if (failed) return null;
   const poster = media('/videos/sol/poster4.jpg');
   return (
-    <div className="sol-bg" aria-hidden>
-      {reduce ? (
-        <img src={poster} alt="" onError={() => setFailed(true)} />
-      ) : (
-        <video autoPlay muted loop playsInline preload="auto" poster={poster} onError={() => setFailed(true)}>
-          <source src={media('/videos/sol/bg4.mp4')} type="video/mp4" />
-          <source src={media('/videos/sol/bg4.webm')} type="video/webm" />
-        </video>
+    <>
+      {!failed && (
+        <div className="sol-bg" aria-hidden>
+          {reduce ? (
+            <img src={poster} alt="" onError={() => setFailed(true)} />
+          ) : (
+            <video autoPlay muted loop playsInline preload="auto" poster={poster} onError={() => setFailed(true)}>
+              <source src={media('/videos/sol/bg4.mp4')} type="video/mp4" />
+              <source src={media('/videos/sol/bg4.webm')} type="video/webm" />
+            </video>
+          )}
+        </div>
       )}
-    </div>
+      {/* 「SOL」の文字を動画のロゴの円の中に（2026-11-09）。カードの後ろ（#root の下）なので、カードのすき間・上のあきから見える。
+          名乗りの画面は自分の文字（.join-hero）を持つので、そのあいだは消す（index.css の .on-join .sol-center）。SANMON タブでは出さない */}
+      <div className="sol-center" aria-hidden><div className="sol-title">SOL</div></div>
+    </>
   );
 }
