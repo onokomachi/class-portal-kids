@@ -11,7 +11,7 @@
 - 名前は **SOL**（2026-10 先生が決めた。先生用の PRISM と対：子どもが光を出し、PRISM がそれを分けて見る）。ロゴは `public/sol-logo.jpg`（起動画面）・`sol-mark.jpg`（ヘッダー・名乗りの画面）・`apple-touch-icon.png`。
   開くたびに PRISM と同じ起動画面（presented by onokomachi → ロゴ。`SplashScreen.tsx`）。配色はロゴの色（紺の地に水色・むらさき・ミント。`index.css`）。「SOL」の字は Michroma・白（`.sol-word`。Google Fonts）、マークは ふちどりなしの正方形、SANMON タブの中（`.theme-sanmon`）だけ緑と金。
 - テストの × の問題には「アプリで『項目名』を れんしゅう」ボタン（アプリを開く。項目をじかに開く仕組みはまだ無いので項目名を出す）。
-- **SANMON のスタミナは2しゅるい**（2026-11-09）：町のスタミナ（単元アプリの正解・本番テストの点数ぶん＝割合×10・その町のぼうけんだけ・50まで。テストは 2026-11-10 から）と共通スタミナ（がんばりボーナス＝階段・熟達・100まで）。SANMON タブのメーターは共通（kit の `SanmonStatus.stamina`）。町ごとの数は `towns`。説明文は `SanmonTab.tsx`。
+- **SANMON のスタミナは2しゅるい**（2026-11-09）：町のスタミナ（小4算数の単元アプリの正解・本番テストの点数ぶん・実力の階段でのぼった段ぶん・その町のぼうけんだけ・50まで。くわしい数は SANMON の CLAUDE.md と `2026-11-10-sanmon-balance.sql`）と共通スタミナ（がんばりボーナス＝はじめての段・熟達・100まで）。国語・英語・5〜6年はスタミナにならない（2026-11-10 23:15〜）。SANMON タブのメーターは共通（kit の `SanmonStatus.stamina`）。町ごとの数は `towns`。説明文は `SanmonTab.tsx`。
 - **先生がまだ開いていない単元**（PRISM の SOL タブで学級ごと。kit の `fetchClosedApps`＝サーバの `my_closed_apps`）は「たんげんを えらぶ」の下に 🔒（押せない）、ふくしゅうにも出さない（`lib/useClosedApps.ts`）。アプリの中でも kit の JoinGate が止める。
 - **ログイン必須**（2026-11-07。PRISM の管理タブのスイッチ＝`portal_settings.require_join`。kit の `loadPortalConfig`・`usePortalConfig`）：入っているときは名乗りの画面に「あとで入れる」を出さず、名乗るまでホームに進めない（`App.tsx` の `mustJoin`）。体験の入口（`#trial`）は名乗りなしのまま。
 - **体験の入口**（2026-11-07。`components/TrialHub.tsx`）：`https://class-portal-kids.vercel.app/#trial`。名乗りは聞かず、PRISM の管理タブで「体験に出す」にしたアプリ（サーバの `trial_apps`）を学年ごとに並べ、`#trial` 付きで開く。
