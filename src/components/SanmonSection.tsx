@@ -32,6 +32,11 @@ export function SanmonSection({ student, status, units, onJoin }: {
   const pct = Math.min(100, (stamina / SANMON_RULES.maxStamina) * 100);
   const openCount = units.filter((u) => u.open).length;
   const battles = Math.floor(stamina / SANMON_RULES.battleCost);
+  // 町のスタミナ（多い順・0の町は出さない）
+  const townList = units
+    .map((u) => ({ key: u.key, name: u.name, n: status?.towns?.[u.key] ?? 0 }))
+    .filter((t) => t.n > 0)
+    .sort((a, b) => b.n - a.n);
   // まだ開いていない町は、あと少しのものを上に（いちばん近いゴールが先に目に入るように）
   const locked = units.filter((u) => !u.open).sort((a, b) => progressOf(b) - progressOf(a));
   const opened = units.filter((u) => u.open);
@@ -62,8 +67,21 @@ export function SanmonSection({ student, status, units, onJoin }: {
               </span>
               <span className="num font-black text-amber-200 text-sm shrink-0">{stamina}<span className="text-[10px] text-amber-200/60">/{SANMON_RULES.maxStamina}</span></span>
             </div>
+            {/* 町のスタミナ（単元アプリ・本番テスト・実力の階段でたまる分。2026-11-11 から ここにも出す。前は共通だけで、アプリでがんばった分が見えなかった） */}
+            <div className="rounded-xl bg-black/30 ring-1 ring-amber-400/20 px-2.5 py-1.5">
+              <p className="text-[11px] font-black text-amber-200">町の スタミナ<span className="font-bold text-amber-200/60">（その町の ぼうけんで つかえる・{SANMON_RULES.townCap}まで）</span></p>
+              {townList.length > 0 ? (
+                <p className="text-[11px] text-emerald-100/90 leading-relaxed mt-0.5">
+                  {townList.map((t, i) => (
+                    <span key={t.key} className="inline-block mr-2">{t.name} <b className="num text-amber-300">{t.n}</b><span className="text-emerald-100/50">/{SANMON_RULES.townCap}</span></span>
+                  ))}
+                </p>
+              ) : (
+                <p className="text-[11px] text-emerald-100/70 mt-0.5">まだ ないよ。単元の アプリで 正解すると、その町に たまるよ</p>
+              )}
+            </div>
             <p className="text-[11px] text-emerald-100/80 leading-relaxed">
-              バトル あと <b className="num text-amber-300">{battles}</b> 回 ・ きょう たまった <b className="num text-amber-300">{status?.earnedToday ?? 0}</b>
+              共通だけで バトル あと <b className="num text-amber-300">{battles}</b> 回 ・ きょう たまった <b className="num text-amber-300">{status?.earnedToday ?? 0}</b>
               ・ ひらいた町 <b className="num text-emerald-300">{openCount}</b>/{units.length}
             </p>
           </div>
@@ -98,7 +116,7 @@ export function SanmonSection({ student, status, units, onJoin }: {
             <div className="flex flex-wrap gap-1.5 mt-3">
               {opened.map((u) => (
                 <span key={u.key} className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/40">
-                  <Unlock size={11} />{u.name}
+                  <Unlock size={11} />{u.name}{(status?.towns?.[u.key] ?? 0) > 0 && <span className="num text-amber-300 ml-1">{status?.towns?.[u.key]}</span>}
                 </span>
               ))}
             </div>
