@@ -1,4 +1,5 @@
 {
+  "installCommand": "rm -rf node_modules/learning-app-kit && npm install",
   "headers": [
     {
       "source": "/assets/(.*)",
