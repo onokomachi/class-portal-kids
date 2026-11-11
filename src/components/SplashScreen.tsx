@@ -2,6 +2,7 @@
  * 起動スプラッシュ。開くたびに一瞬だけ出る（PRISM と同じ見せ方）。
  *
  * 「presented by onokomachi」（0.5秒）→ SOL のロゴ（1秒）の2段。
+ * 2026-11-11：見せるのは その端末で 1日1回だけ（2回目からは すぐ使えるように。1.8秒の待ちをなくす）。
  * 記録の読みこみ（App）はこの裏で並行に進んでいて、スプラッシュを待たせるためのものではない——ただの見せ方。
  * ロゴの画像（public/sol-logo.jpg）は地の色が #01040b なので、スプラッシュの地も同じ色にしてつなぎ目を消す。
  */
@@ -13,14 +14,25 @@ const FADE_MS = 260;    // 消えるときのフェード
 
 type Stage = 'brand' | 'logo' | 'out' | 'done';
 
+const SEEN_KEY = 'sol_splash_day';
+const today = () => new Date().toLocaleDateString('ja-JP');
+/** きょう もう見せたか（見られない端末では毎回見せる） */
+function seenToday(): boolean {
+  try { return localStorage.getItem(SEEN_KEY) === today(); } catch { return false; }
+}
+
 export function SplashScreen() {
-  const [stage, setStage] = useState<Stage>('brand');
+  const [stage, setStage] = useState<Stage>(() => (seenToday() ? 'done' : 'brand'));
 
   useEffect(() => {
+    if (stage === 'done') return;
+    try { localStorage.setItem(SEEN_KEY, today()); } catch { /* 見られない端末は毎回見せる */ }
     const t1 = setTimeout(() => setStage('logo'), BRAND_MS);
     const t2 = setTimeout(() => setStage('out'), BRAND_MS + LOGO_MS);
     const t3 = setTimeout(() => setStage('done'), BRAND_MS + LOGO_MS + FADE_MS);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    // 最初の1回だけ（stage を見るのは はじめの判定のため）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (stage === 'done') return null;

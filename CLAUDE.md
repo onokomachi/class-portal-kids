@@ -9,7 +9,7 @@
 - 番号を変える（ヘッダーの「ばんごうを かえる」）には先生のパスワード（kit の `UnlockPrompt`。サーバの `verify_unlock`。PRISM で学級ごとに変えられる）。はじめに名乗るときは「これで いい？」を1回はさむ。
 - テストの ○× は、日づけを押したときだけ読む（kit の `fetchMyTestDetail`＝サーバの `my_test_detail`。1回5KBほど）。
 - 名前は **SOL**（2026-10 先生が決めた。先生用の PRISM と対：子どもが光を出し、PRISM がそれを分けて見る）。ロゴは `public/sol-logo.jpg`（起動画面）・`sol-mark.jpg`（ヘッダー・名乗りの画面）・`apple-touch-icon.png`。
-  開くたびに PRISM と同じ起動画面（presented by onokomachi → ロゴ。`SplashScreen.tsx`）。配色はロゴの色（紺の地に水色・むらさき・ミント。`index.css`）。「SOL」の字は Michroma・白（`.sol-word`。Google Fonts）、マークは ふちどりなしの正方形、SANMON タブの中（`.theme-sanmon`）だけ緑と金。
+  起動画面（presented by onokomachi → ロゴ。`SplashScreen.tsx`）は**その端末で1日1回だけ**（2026-11-11。2回目からは約1.8秒の待ちをなくす）。`vercel.json` で `/assets/` を1年キャッシュ（名前に版が入るので安全）。配色はロゴの色（紺の地に水色・むらさき・ミント。`index.css`）。「SOL」の字は Michroma・白（`.sol-word`。Google Fonts）、マークは ふちどりなしの正方形、SANMON タブの中（`.theme-sanmon`）だけ緑と金。
 - テストの × の問題には「アプリで『項目名』を れんしゅう」ボタン（アプリを開く。項目をじかに開く仕組みはまだ無いので項目名を出す）。
 - **SANMON のスタミナは2しゅるい**（2026-11-09）：町のスタミナ（小4算数の単元アプリの正解・本番テストの点数ぶん・実力の階段でのぼった段ぶん・その町のぼうけんだけ・50まで。くわしい数は SANMON の CLAUDE.md と `2026-11-10-sanmon-balance.sql`）と共通スタミナ（がんばりボーナス＝はじめての段・熟達・100まで）。国語・英語・5〜6年はスタミナにならない（2026-11-10 23:15〜）。アプリの無い町（大きい数・折れ線グラフ・角）は SANMON の れんしゅう・ふくしゅうの正解でその町にたまる（2026-11-11〜）。SANMON タブのメーターは共通（kit の `SanmonStatus.stamina`）。**町のスタミナも SANMON タブに出す**（`SanmonSection` の「町の スタミナ」。多い順・0は出さない。2026-11-11。前は共通だけで、アプリの正解が見えず「増えていない」ように見えた）。町ごとの数は `towns`（kit 0699225 以降）。説明文は `SanmonTab.tsx`。
 - **先生がまだ開いていない単元**（PRISM の SOL タブで学級ごと。kit の `fetchClosedApps`＝サーバの `my_closed_apps`）は「たんげんを えらぶ」の下に 🔒（押せない）、ふくしゅうにも出さない（`lib/useClosedApps.ts`）。アプリの中でも kit の JoinGate が止める。
