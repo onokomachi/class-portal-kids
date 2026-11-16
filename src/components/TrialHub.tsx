@@ -6,6 +6,8 @@
  * 押すとそのアプリを #trial 付きで開く（アプリの中は体験版：答えは送らない・使える画面は PRISM の設定）。
  * 並びはサーバの trial_apps（SANMON → 学年 → 算数・国語・外国語活動 → 年間の順。apps.year_order）。
  * SANMON だけは いちばん上に、SANMON タブと同じ 緑と金の大きなカードで出す（2026-11-08 先生と決めた）。
+ * CAT-WARS は、先生が PRISM の管理タブで「体験に出す」にしたとき（サーバの trial_apps が返したとき）だけ、SANMON のカードの下に
+ * 同じ緑と金のカードで出す（2026-11-16 CW-5c。学年の並びには入れない。lib/solApps.ts）。
  */
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronRight, ExternalLink, Loader2, Sparkles, Swords } from 'lucide-react';
@@ -28,11 +30,12 @@ export function TrialHub() {
   }, []);
 
   const sanmon = apps?.find((a) => a.appId === 'sanmon') ?? null;
+  const catwars = apps?.find((a) => a.appId === 'catwars') ?? null;
   const byGrade = useMemo(() => {
     const m = new Map<number, TrialAppEntry[]>();
     for (const a of apps ?? []) {
-      // CAT-WARS はサーバでも体験に出していない（trial_settings.listed = false）。PRISM で「体験に出す」にしても、まだ SOL には出さない（lib/solApps.ts）
-      if (a.appId === 'sanmon' || !onSol(a.appId)) continue;
+      // SANMON と CAT-WARS は 上の大きなカードで出す。ほかの「SOL に出さない」アプリは 体験の入口にも出さない（lib/solApps.ts）
+      if (a.appId === 'sanmon' || a.appId === 'catwars' || !onSol(a.appId)) continue;
       const g = a.grade ?? 0;
       m.set(g, [...(m.get(g) ?? []), a]);
     }
@@ -82,6 +85,28 @@ export function TrialHub() {
               </p>
               <span className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 font-black text-lg bg-gradient-to-r from-emerald-500 to-amber-400 text-black shadow-[0_0_24px_rgba(52,211,153,0.55)]">
                 <Swords size={22} /> <span className="whitespace-nowrap">たいけんする</span> <ChevronRight size={22} />
+              </span>
+            </a>
+          </div>
+        )}
+
+        {catwars && (
+          <div className="theme-sanmon">
+            <a href={buildTrialUrl(catwars.url)} data-testid="trial-catwars"
+              className="tap block hud rounded-3xl p-5 relative overflow-hidden" aria-label="CAT-WARS を たいけんする">
+              <div className="absolute -right-10 -top-12 w-48 h-48 rounded-full bg-sky-500/20 blur-3xl pointer-events-none" />
+              <div className="flex items-center gap-3">
+                <span className="catwars-cat shrink-0" aria-hidden>🐱</span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black tracking-[0.3em] text-emerald-300/80">GAME ・ 4ねん さんすう</p>
+                  <p className="catwars-word text-3xl sm:text-4xl font-black italic leading-tight">CAT-WARS</p>
+                </div>
+              </div>
+              <p className="text-xs text-emerald-100/80 mt-2 leading-relaxed">
+                問題を といて ネコ軍団を 出そう。基地を きずいて、てきの 基地を せめるよ。
+              </p>
+              <span className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 font-black text-base bg-gradient-to-r from-sky-400 to-amber-400 text-black shadow-[0_0_20px_rgba(56,189,248,0.45)]">
+                <span className="whitespace-nowrap">たいけんする</span> <ChevronRight size={20} />
               </span>
             </a>
           </div>
