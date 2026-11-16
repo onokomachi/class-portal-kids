@@ -218,6 +218,21 @@ body {
   filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.45));
 }
 
+/* CAT-WARS の入口（SANMON タブの中。2026-11-16 CW-5c）：SANMON の緑と金の中で、CAT-WARS の水色の文字（CAT-WARS の画面の .text-hologram に寄せる）。絵は作らず 絵文字 */
+.catwars-word {
+  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, #7dd3fc, #38bdf8 45%, #fbbf24);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+}
+.catwars-cat {
+  display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; font-size: 30px; line-height: 1;
+  background: radial-gradient(circle at 50% 40%, rgba(56, 189, 248, 0.28), rgba(3, 14, 11, 0.6));
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.45), 0 0 16px -4px rgba(56, 189, 248, 0.5);
+}
+
 /** 押せるものは、押した瞬間に少し沈む */
 .tap { transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
 .tap:active { transform: scale(.985); }

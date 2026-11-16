@@ -26,7 +26,10 @@
   **ホーム・体験の入口の背景にも「SOL」の文字**（2026-11-09 先生が案Aに決めた。`SolBackground` の `.sol-center`）：動画のロゴの円の中、カードの後ろ（`#root` の下）。カードのすき間・上のあきから見える。
   名乗りの画面のあいだは消し（`.on-join .sol-center`。自分の `.join-hero` があるため。位置は動画と同じ余白で動かす）、SANMON タブでは出さない（`.in-sanmon`）。
   ホームと体験の入口の上の帯は `.sol-header`（すりガラス＋光のふち）。
-- **CAT-WARS（`catwars`・教科「ゲーム」）は SOL に まだ出さない**（2026-11-16。記録は送ってくる）：単元の一覧・ふくしゅう・体験の入口・じぶんの きろく から `lib/solApps.ts` の `onSol` で外す（SANMON は今までどおり出す）。出すときは そこから外す。
+- **CAT-WARS（`catwars`・教科「ゲーム」）の入口は SANMON タブと体験の入口だけ**（2026-11-16 CW-5c。先生が決めた「SOL に入り口を出すが、閉じておく、PRISM で管理」）：
+  SANMON タブの SANMON の入口の下に `components/CatwarsCard.tsx`（スタミナが共通のため）。開け閉めは鍵 `catwars`（kit の `fetchSanmonModes`・`modeLockMessage`。`lib/useCatwars.ts`。タブを開いたとき・SOL にもどったときに読む）。
+  **閉じているときも見せる**（🔒。押すと わけ：先生が まだ／授業の時間／番号ごとの停止は「せんせいと おはなししてね」）。開いていれば名乗り（`#c=&n=`）を付けて開く。名乗っていない子は おためしで開く。読めないときは開く（CAT-WARS の関門が止める）。
+  体験の入口は サーバの `trial_apps` が返したとき（PRISM で「体験に出す」）だけ、SANMON のカードの下に。**じぶんの きろく・ふくしゅう・単元の一覧には出さない**（`lib/solApps.ts` の `onSol`）。
 - きょうの ふくしゅう は、サーバの次の日（間をあけて繰り返す）で選び、教科を交互にまぜて並べる（`toDueItems`・`interleaveBySubject`）。はじめの3つを先に出す。
 
 ## 確かめ方

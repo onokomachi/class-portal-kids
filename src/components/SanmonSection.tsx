@@ -16,6 +16,7 @@ import { ChevronRight, ChevronDown, Lock, Unlock, Zap, Swords } from 'lucide-rea
 import { buildHandoffUrl, type StudentIdentity } from 'learning-app-kit/sync';
 import { SANMON_RULES, type SanmonStatus, type SanmonUnitProgress, type Meter } from 'learning-app-kit/sanmon';
 import { SANMON_URL } from '../lib/useSanmon';
+import { CatwarsCard } from './CatwarsCard';
 
 function link(url: string | undefined, student: StudentIdentity | null) {
   if (!url) return undefined;
@@ -89,6 +90,9 @@ export function SanmonSection({ student, status, units, onJoin }: {
           <p className="mt-3 text-xs text-emerald-100/80">がっきゅうコードを 入れると、スタミナと 町が つかえるよ</p>
         )}
       </a>
+
+      {/* CAT-WARS の入口（2026-11-16 CW-5c。スタミナは SANMON と共通なので このタブ。閉じているあいだは 🔒 と わけ） */}
+      <CatwarsCard student={student} />
 
       {!student ? (
         <button onClick={onJoin} className="tap w-full hud rounded-2xl p-4 text-left">
