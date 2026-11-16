@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { summarize, type TrialRecord, type TrialMode, type TrialSummary } from 'learning-app-kit/trial';
 import { CATALOGS, type AppCatalog } from 'learning-app-kit/catalog';
+import { onSol } from './solApps';
 import { portalConfig } from './portal';
 
 /** サーバの trial_result 1行（my_trial_all が返す形） */
@@ -104,7 +105,7 @@ export function toStairs(rows: readonly MyTrialRow[], grade: number, now = Date.
   const weekAgo = now - 7 * 24 * 3600 * 1000;
   for (const [appId, recs] of byApp) {
     const app = CATALOGS[appId];
-    if (!app || app.grade !== grade) continue;
+    if (!app || app.grade !== grade || !onSol(appId)) continue;
     const latest = recs.reduce((a, b) => (b.ts > a.ts ? b : a));
     const floors = latest.floors || Math.max(...recs.map((r) => r.floors), 1);
     units.push({ app, floors, summary: summarize(recs, floors), lastTs: latest.ts });

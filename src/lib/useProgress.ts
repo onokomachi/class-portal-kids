@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { fetchMyProgress, dueFromRows, type MySkillRow } from 'learning-app-kit/sync';
 import { lookupSkill, CATALOGS, type AppCatalog } from 'learning-app-kit/catalog';
+import { onSol } from './solApps';
 import { portalConfig } from './portal';
 
 /** 復習の時期が来た1件。どのアプリのどこへ行けばよいかまで分かる形にする。 */
@@ -65,7 +66,7 @@ export function toDueItems(rows: readonly MySkillRow[], limit = 6, now = Date.no
   const seen = new Set<string>();
   const picked: DueItem[] = [];
   for (const r of dueFromRows(rows, now)) {
-    if (seen.has(r.app_id)) continue;
+    if (seen.has(r.app_id) || !onSol(r.app_id)) continue;   // CAT-WARS は ふくしゅうに出さない（lib/solApps.ts）
     const c = lookupSkill(r.app_id, r.skill_id);
     const app = CATALOGS[r.app_id];
     if (!c || !app) continue;          // カタログに無い記号は出さない（子どもに記号を見せない）
@@ -108,7 +109,7 @@ export function toUnitProgress(rows: readonly MySkillRow[], grade: number, now =
   }
   return Object.values(CATALOGS)
     // SANMON（subject「ゲーム」）は単元ではないので、ここには並べない（ホームの上に専用の入口がある）
-    .filter((a) => a.grade === grade && a.subject !== 'ゲーム')
+    .filter((a) => a.grade === grade && a.subject !== 'ゲーム' && onSol(a.app_id))
     .map((app) => {
       const mine = byApp.get(app.app_id) ?? [];
       return {
