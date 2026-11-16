@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronRight, ExternalLink, Loader2, Sparkles, Swords } from 'lucide-react';
 import { fetchTrialApps, buildTrialUrl, endTrial, type TrialAppEntry } from 'learning-app-kit/sync';
 import { portalConfig } from '../lib/portal';
+import { onSol } from '../lib/solApps';
 import { CardTitle, SubjectTag } from './kidsUi';
 
 export function TrialHub() {
@@ -30,7 +31,8 @@ export function TrialHub() {
   const byGrade = useMemo(() => {
     const m = new Map<number, TrialAppEntry[]>();
     for (const a of apps ?? []) {
-      if (a.appId === 'sanmon') continue;
+      // CAT-WARS はサーバでも体験に出していない（trial_settings.listed = false）。PRISM で「体験に出す」にしても、まだ SOL には出さない（lib/solApps.ts）
+      if (a.appId === 'sanmon' || !onSol(a.appId)) continue;
       const g = a.grade ?? 0;
       m.set(g, [...(m.get(g) ?? []), a]);
     }

@@ -23,6 +23,7 @@ import {
 } from 'learning-app-kit/sync';
 import { lookupSkill, CATALOGS, type AppCatalog } from 'learning-app-kit/catalog';
 import { portalConfig } from './portal';
+import { onSol } from './solApps';
 
 export function useActivity(studentId: string | null) {
   const [rows, setRows] = useState<MyActivityRow[]>([]);
@@ -88,6 +89,7 @@ export interface StrongUnit {
 export function toStrengths(rows: readonly MySkillRow[]): StrongUnit[] {
   const byApp = new Map<string, MySkillRow[]>();
   for (const r of rows) {
+    if (!onSol(r.app_id)) continue;      // CAT-WARS は まだ出さない（lib/solApps.ts）
     if (!byApp.has(r.app_id)) byApp.set(r.app_id, []);
     byApp.get(r.app_id)!.push(r);
   }
@@ -122,7 +124,7 @@ export function toNextSteps(rows: readonly MySkillRow[], limit = 3): NextStep[] 
   const seen = new Set<string>();
   const out: NextStep[] = [];
   const candidates = rows
-    .filter((r) => r.perfect_streak < 5 && r.attempts > 0)
+    .filter((r) => r.perfect_streak < 5 && r.attempts > 0 && onSol(r.app_id))
     .sort((a, b) => a.attempts - b.attempts);
 
   for (const r of candidates) {
@@ -229,6 +231,7 @@ const MIN_FOR_RATE = 10;
 export function toUnitAbility(rows: readonly MySkillTotalRow[], grade: number): UnitAbility[] {
   const byApp = new Map<string, { answers: number; corrects: number; skills: number }>();
   for (const r of rows) {
+    if (!onSol(r.app_id)) continue;      // CAT-WARS は「CAT-WARS」という単元に見えるので出さない（SANMON は出す）
     const cur = byApp.get(r.app_id) ?? { answers: 0, corrects: 0, skills: 0 };
     cur.answers += Number(r.answers) || 0;
     cur.corrects += Number(r.corrects) || 0;
@@ -267,6 +270,7 @@ export function toHardSkills(rows: readonly MySkillTotalRow[], limit = 5): Skill
   const out: SkillAbility[] = [];
   for (const r of rows) {
     const answers = Number(r.answers) || 0;
+    if (!onSol(r.app_id)) continue;
     if (answers < MIN_FOR_RATE) continue;      // 回数が少ないものは判断しない
     if ((Number(r.corrects) || 0) / answers >= HARD_BELOW) continue;   // できている項目は並べない
     const c = lookupSkill(r.app_id, r.skill_id);
@@ -318,6 +322,7 @@ export interface TestSeries {
 export function toTestSeries(rows: readonly MyTestRow[], grade: number): TestSeries[] {
   const map = new Map<string, MyTestRow[]>();
   for (const r of rows) {
+    if (!onSol(r.app_id)) continue;
     const key = `${r.app_id}|${r.mode ?? ''}`;
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(r);
